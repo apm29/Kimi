@@ -11,6 +11,9 @@ dependencies:
 
   dio: ^0.1.5
 
+  fluttertoast: ^2.0.6
+  shared_preferences: ^0.4.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -25,9 +28,22 @@ flutter:
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
+  fonts:
+        - family: Poppins
+          fonts:
+            - asset: lib/fonts/Poppins-SemiBold.ttf
+              weight: 700
+            - asset: lib/fonts/Poppins-Regular.ttf
+              weight: 400
+
   assets:
-      - lib/image/splash.png
-      - lib/image/banner.png
+      - lib/images/splash.png
+      - lib/images/banner_static.png
+      - lib/images/ic_launcher_jun.png
+      - lib/images/loan_selected.png
+      - lib/images/loan_unselected.png
+      - lib/images/mine_selected.png
+      - lib/images/mine_unselected.png
 
   uses-material-design: true
 
