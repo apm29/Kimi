@@ -7,4 +7,6 @@
 .DS_Store
 /build
 /captures
+/.idea/vcs.xml
+.idea/
 GeneratedPluginRegistrant.java

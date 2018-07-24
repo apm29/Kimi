@@ -32,7 +32,7 @@ class Profile{
 
   int is_master;
   int is_real;
-  int type;
+  int type;//0 代理 1 客户经理
   String mobile;
   String parent_mobile;
   String parent_real_name;

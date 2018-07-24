@@ -6,8 +6,9 @@ import 'package:flutter_office/images.dart';
 
 import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/model/model.dart';
-import 'package:flutter_office/ui/pages/home.dart';
+import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/pages/login.dart';
+import 'package:simple_permissions/simple_permissions.dart';
 
 class SplashPage extends StatelessWidget {
   final CancelToken cancelToken = new CancelToken();
@@ -19,7 +20,7 @@ class SplashPage extends StatelessWidget {
   }
 
   Widget build(BuildContext context) {
-    checkProfile(context);
+    checkPermissions(context);
     return Container(
         padding: new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         color: Colors.white,
@@ -33,7 +34,7 @@ class SplashPage extends StatelessWidget {
     new Timer(Duration(seconds: 2), () {
       Navigator.pushReplacement(context,
           new MaterialPageRoute(builder: (context) {
-        return new HomePage();
+        return new MainPage();
       }));
     });
   }
@@ -42,14 +43,13 @@ class SplashPage extends StatelessWidget {
     profile(cancelToken).then((v) {
       BaseResp<Profile> resp = new BaseResp<Profile>(v.data);
       if (resp.isSuccess()) {
-        if(resp.data.is_master!=0){
+        if (resp.data.type != 0) {
           toMain(context);
-        }else if(resp.data.is_real!=0){
+        } else if (resp.data.is_real != 0) {
           toMain(context);
-        }else{
+        } else {
           toLogin(context);
         }
-
       } else {
         toLogin(context);
       }
@@ -65,5 +65,14 @@ class SplashPage extends StatelessWidget {
         return new LoginPage();
       }));
     });
+  }
+
+  void checkPermissions(BuildContext context) {
+    SimplePermissions
+        .requestPermission(Permission.AccessCoarseLocation)
+        .then((v) => SimplePermissions.requestPermission(Permission.Camera))
+        .then((v) => SimplePermissions.requestPermission(Permission.ReadContacts))
+        .then((v) => SimplePermissions.requestPermission(Permission.ReadExternalStorage))
+        .then((v) => checkProfile(context));
   }
 }

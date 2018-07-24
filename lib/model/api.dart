@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:dio/dio.dart';
-import 'package:flutter_office/model/model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Options options = new Options(
   responseType: ResponseType.PLAIN,

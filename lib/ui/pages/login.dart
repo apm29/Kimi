@@ -1,14 +1,13 @@
-import 'package:dio/src/CancelToken.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_office/images.dart';
 import 'package:flutter_office/main.dart';
 import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/text_style.dart';
-import 'package:flutter_office/ui/pages/home.dart';
+import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -74,18 +73,7 @@ class LoginState extends State<LoginPage> {
             new Container(
               height: 24.0,
             ),
-            new Container(
-              margin: new EdgeInsets.fromLTRB(64.0, 8.0, 64.0, 8.0),
-              child: new MaterialButton(
-                splashColor: Colors.amberAccent,
-                onPressed: _login,
-                child: new Text(
-                  "登录",
-                  style: headerTextStyle,
-                ),
-                color: gold,
-              ),
-            ),
+            new JunButton(_login,"登录"),
             new Container(
               height: 32.0,
             ),
@@ -172,7 +160,7 @@ class LoginState extends State<LoginPage> {
   void toMain() {
     Navigator.pushReplacement(context,
         new MaterialPageRoute(builder: (context) {
-      return new HomePage();
+      return new MainPage();
     }));
   }
 }
