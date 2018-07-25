@@ -68,14 +68,33 @@ class NewApplicantDialog extends StatefulWidget {
 class NewApplicantState extends State<NewApplicantDialog> {
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      decoration: new BoxDecoration(color: Colors.white),
-      child: new IntrinsicWidth(
+    return new AlertDialog(
+      title: new Center(
+          child: new Text(
+        "进件客户验证",
+        style: hintTextStyle.copyWith(fontSize: 16.0),
+      )),
+      content: new Container(
+        width: MediaQuery.of(context).size.width,
+        margin: new EdgeInsets.symmetric(horizontal: 16.0),
         child: new Column(
+
           mainAxisSize: MainAxisSize.min,
-          children:<Widget>[
-            new Text("1"),
-            new Text("2"),
+          children: <Widget>[
+            new Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                new Text("*用户姓名:"),
+                new Expanded(
+                  child: new TextField(
+                    textAlign: TextAlign.end,
+                    decoration:
+                        new InputDecoration.collapsed(hintText: "请输入姓名"),
+                  ),
+                ),
+              ],
+            ),
             new Text("3"),
             new Text("4"),
             new Text("5"),
@@ -83,7 +102,6 @@ class NewApplicantState extends State<NewApplicantDialog> {
               var resp = new BaseResp('{"msg": "成功", "code": 200}');
               Navigator.of(context).pop<BaseResp>(resp);
             }, "提交"),
-
           ],
         ),
       ),

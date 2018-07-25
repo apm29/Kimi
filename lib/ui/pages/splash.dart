@@ -9,7 +9,7 @@ import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/pages/login.dart';
 import 'package:simple_permissions/simple_permissions.dart';
-
+import 'dart:async';
 class SplashPage extends StatelessWidget {
   final CancelToken cancelToken = new CancelToken();
 

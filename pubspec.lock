@@ -353,7 +353,7 @@ packages:
     source: hosted
     version: "0.11.0+1"
   stack_trace:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: stack_trace
       url: "https://pub.flutter-io.cn"

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/ui/pages/splash.dart';
+import 'package:stack_trace/stack_trace.dart';
 
 void main(){
   initDio();
-  runApp(new MyApp());
+  Chain.capture((){runApp(new MyApp());},onError:(e,chain){
+    print("Caught error $e\n"
+              "${chain.terse}");
+  });
 }
 
 ///color
