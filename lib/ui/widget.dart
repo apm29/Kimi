@@ -50,7 +50,7 @@ class TextState extends State<TextInput> {
             new Expanded(
               child: new TextField(
                 controller: controller,
-                obscureText: _obscureMask,
+                obscureText: !_obscureMask,
                 style: hintTextStyle.copyWith(
                     decoration: TextDecoration.none,
                     fontSize: 22.0,

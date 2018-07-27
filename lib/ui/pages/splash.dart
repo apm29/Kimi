@@ -8,8 +8,7 @@ import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/pages/login.dart';
-import 'package:simple_permissions/simple_permissions.dart';
-import 'dart:async';
+
 class SplashPage extends StatelessWidget {
   final CancelToken cancelToken = new CancelToken();
 
@@ -68,11 +67,6 @@ class SplashPage extends StatelessWidget {
   }
 
   void checkPermissions(BuildContext context) {
-    SimplePermissions
-        .requestPermission(Permission.AccessCoarseLocation)
-        .then((v) => SimplePermissions.requestPermission(Permission.Camera))
-        .then((v) => SimplePermissions.requestPermission(Permission.ReadContacts))
-        .then((v) => SimplePermissions.requestPermission(Permission.ReadExternalStorage))
-        .then((v) => checkProfile(context));
+    checkProfile(context);
   }
 }

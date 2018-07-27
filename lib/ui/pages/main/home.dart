@@ -53,7 +53,7 @@ class HomeState extends State<HomeFragment> {
         builder: (context) {
           return new NewApplicantDialog();
         }).then((success) {
-      Fluttertoast.showToast(msg: success.msg);
+      if (success != null) Fluttertoast.showToast(msg: success.msg);
     });
   }
 }
@@ -78,7 +78,6 @@ class NewApplicantState extends State<NewApplicantDialog> {
         width: MediaQuery.of(context).size.width,
         margin: new EdgeInsets.symmetric(horizontal: 16.0),
         child: new Column(
-
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             new Row(

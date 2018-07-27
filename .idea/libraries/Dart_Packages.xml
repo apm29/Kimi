@@ -93,6 +93,13 @@
             </list>
           </value>
         </entry>
+        <entry key="device_info">
+          <value>
+            <list>
+              <option value="F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/device_info-0.2.1/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="dio">
           <value>
             <list>
@@ -317,13 +324,6 @@
             </list>
           </value>
         </entry>
-        <entry key="simple_permissions">
-          <value>
-            <list>
-              <option value="F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/simple_permissions-0.1.5/lib" />
-            </list>
-          </value>
-        </entry>
         <entry key="sky_engine">
           <value>
             <list>
@@ -459,6 +459,7 @@
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/crypto-2.0.2+1/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/csslib-0.14.1/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/cupertino_icons-0.1.2/lib" />
+      <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/device_info-0.2.1/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/dio-0.1.5/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/fluttertoast-2.0.6/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/front_end-0.1.0-alpha.9/lib" />
@@ -489,7 +490,6 @@
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/shelf_packages_handler-1.0.3/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/shelf_static-0.2.7/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/shelf_web_socket-0.2.2/lib" />
-      <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/simple_permissions-0.1.5/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/source_map_stack_trace-1.1.4/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/source_maps-0.10.4/lib" />
       <root url="file://F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/source_span-1.4.0/lib" />
