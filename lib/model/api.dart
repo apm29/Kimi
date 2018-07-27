@@ -1,43 +1,90 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:flutter_office/model/base.dart';
-import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter_office/model/model.dart';
 
+Options options = new Options(
+  responseType: ResponseType.PLAIN,
+  baseUrl: "http://office-api.junleizg.com.cn",
+  connectTimeout: 5000,
+  receiveTimeout: 3000,
+  headers: {"Content-Type": "Application/json"},
+);
+Dio dio = new Dio(options);
+Map data = {"access_token": ""};
+SharedPreferences prefs;
+class MyTransformer extends DefaultTransformer {
+  @override
+  Future transformRequest(Options options) async {
+    if (options.data is List) {
+      throw new DioError(message: "Can't send List to sever directly");
+    } else {
+      return super.transformRequest(options);
+    }
+  }
 
-Map map = {
-  "Content-Type":"Application/json"
-};
-Map body={
-  "access_token": "934d49dd8198b1830158b226ec2c0ec1"
-};
-
-final host = "http://office-api.junleizg.com.cn";
-
-
-class Api{
-  void profile() async{
-
-    Future<http.Response> future = http.post(host,headers: map,body: body.toString());
-    future.then((response){
-      print(response.body);
-    }).catchError((e){
-      print("错误:$e");
-    },test:(error){
-      print("错误:$error");
-      return true;
-    }).whenComplete((){
-      print("完成请求");
-    });
-
-
-    Dio dio = new Dio();
-    Response response=await dio.get("https://www.google.com/");
-    print(response.data);
-
+  /// The [Options] doesn't contain the cookie info. we add the cookie
+  /// info to [Options.extra], and you can retrieve it in [ResponseInterceptor]
+  /// and [Response] with `response.request.extra["cookies"]`.
+  @override
+  Future transformResponse(Options options, HttpClientResponse response) async {
+    options.extra["cookies"] = response.cookies;
+    return super.transformResponse(options, response);
   }
 }
-void main(){
-  new Api().profile();
+
+void initDio() async {
+  dio.interceptor.request.onSend = (Options options) async{
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('access_token');
+    data["access_token"] = token;
+
+    print("on REQUEST[method]: ${options.method}");
+    print("on REQUEST[headers]: ${options.headers}");
+    print("on REQUEST[url]: ${options.baseUrl + options.path}");
+    print("on REQUEST[body]: ${options.data}");
+    // 在请求被发送之前做一些事情
+    return options; //continue
+    // 如果你想完成请求并返回一些自定义数据，可以返回一个`Response`对象或返回`dio.resolve(data)`。
+    // 这样请求将会被终止，上层then会被调用，then中返回的数据将是你的自定义数据data.
+    //
+    // 如果你想终止请求并触发一个错误,你可以返回一个`DioError`对象，或返回`dio.reject(errMsg)`，
+    // 这样请求将被中止并触发异常，上层catchError会被调用。
+  };
+  dio.interceptor.response.onSuccess = (Response response) {
+    // 在返回响应数据之前做一些预处理
+    print("on REPONSE[data]: ${response.data}");
+    return response; // continue
+  };
+  dio.interceptor.response.onError = (DioError e) {
+    // 当请求失败时做一些预处理
+    print(e);
+    return DioError; //continue
+  };
+
+  dio.transFormer = new MyTransformer();
+  prefs = await SharedPreferences.getInstance();
+  var token = prefs.getString('access_token');
+  data["access_token"] = token;
+}
+
+Future<Response> profile(CancelToken cancelToken) {
+  Future<Response> future =
+      dio.post("/v1/user/profile", data: data, cancelToken: cancelToken);
+  return future;
+}
+
+Future<Response> login(CancelToken cancelToken, name, pass) {
+  data.clear();
+  data["biz_content"] = {
+    "username":name,
+    "password":pass,
+  };
+  Future<Response> future = dio.post("/v1/user/login",
+      data:data,
+      cancelToken: cancelToken);
+  return future;
 }

@@ -1,7 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_office/ui/splash.dart';
+import 'package:flutter_office/model/api.dart';
+import 'package:flutter_office/ui/pages/splash.dart';
 
-void main() => runApp(new MyApp());
+void main(){
+  initDio();
+  runApp(new MyApp());
+}
+
+///color
+const int _goldPrimaryValue = 0xFFD7B47D;
+const MaterialColor gold = const MaterialColor(
+  _goldPrimaryValue,
+  const <int, Color>{
+    50: const Color(0xCCD7B47D),
+    100: const Color(0xCCD7B47D),
+    200: const Color(0xFFF1B47D),
+    300: const Color(0xFFF1B47D),
+    400: const Color(0xFFD7B47D),
+    500: const Color(_goldPrimaryValue),
+    600: const Color(0xFFBA9C68),
+    700: const Color(0xFFBA9C68),
+  },
+);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
