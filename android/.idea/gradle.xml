@@ -5,6 +5,16 @@
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
+            <option value="F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/device_info-0.2.1/android" />
+            <option value="F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/fluttertoast-2.0.6/android" />
+            <option value="F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/shared_preferences-0.4.2/android" />
+            <option value="F:/Flutter/flutter/.pub-cache/hosted/pub.flutter-io.cn/sqflite-0.11.0+1/android" />
+          </set>
+        </option>
         <option name="resolveModulePerSourceSet" value="false" />
       </GradleProjectSettings>
     </option>

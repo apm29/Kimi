@@ -1,7 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_office/ui/pages/login.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Options options = new Options(
@@ -12,7 +17,7 @@ Options options = new Options(
   headers: {"Content-Type": "Application/json"},
 );
 Dio dio = new Dio(options);
-Map data = {"access_token": ""};
+Map data = {"access_token": "","platform":"android-flutter","_app_type":"android"};
 SharedPreferences prefs;
 class MyTransformer extends DefaultTransformer {
   @override
@@ -56,11 +61,20 @@ void initDio() async {
   dio.interceptor.response.onSuccess = (Response response) {
     // 在返回响应数据之前做一些预处理
     print("on REPONSE[data]: ${response.data}");
+//    if(response.data!=null){
+//      Map<String,dynamic> decodeMap = json.decode(response.data);
+//      if(decodeMap.containsKey("code")&&decodeMap["code"]==401){
+//        Navigator.pushReplacement(context, new MaterialPageRoute(builder: (context){
+//          return new LoginPage();
+//        }));
+//      }
+//    }
     return response; // continue
   };
   dio.interceptor.response.onError = (DioError e) {
     // 当请求失败时做一些预处理
     print(e);
+    Fluttertoast.showToast(msg: e.message);
     return DioError; //continue
   };
 
@@ -70,13 +84,15 @@ void initDio() async {
   data["access_token"] = token;
 }
 
-Future<Response> profile(CancelToken cancelToken) {
+Future<Response> profile(BuildContext context,CancelToken cancelToken) {
+  add401Interceptor(context);
   Future<Response> future =
       dio.post("/v1/user/profile", data: data, cancelToken: cancelToken);
   return future;
 }
 
-Future<Response> login(CancelToken cancelToken, name, pass) {
+Future<Response> login(BuildContext context,CancelToken cancelToken, name, pass) {
+  add401Interceptor(context);
   data.clear();
   data["biz_content"] = {
     "username":name,
@@ -86,4 +102,22 @@ Future<Response> login(CancelToken cancelToken, name, pass) {
       data:data,
       cancelToken: cancelToken);
   return future;
+}
+
+void add401Interceptor(BuildContext context){
+  dio.interceptor.response.onSuccess = (Response response) {
+    // 在返回响应数据之前做一些预处理
+    print("on REPONSE[data]: ${response.data}");
+    if(response.data!=null){
+      Map<String,dynamic> decodeMap = json.decode(response.data);
+      if(decodeMap.containsKey("code")&&decodeMap["code"]==401){
+        Navigator.pushAndRemoveUntil(context, new MaterialPageRoute(builder: (context){
+          return new LoginPage();
+        }),(route){
+          return false;
+        });
+      }
+    }
+    return response; // continue
+  };
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_office/images.dart';
+import 'package:flutter_office/main.dart';
 import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/text_style.dart';
 import 'package:flutter_office/ui/widget.dart';
@@ -66,6 +67,9 @@ class NewApplicantDialog extends StatefulWidget {
 }
 
 class NewApplicantState extends State<NewApplicantDialog> {
+  var _idController = new TextEditingController();
+  var _nameController = new TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return new AlertDialog(
@@ -79,28 +83,55 @@ class NewApplicantState extends State<NewApplicantDialog> {
         margin: new EdgeInsets.symmetric(horizontal: 16.0),
         child: new Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            new TextField(
+              textAlign: TextAlign.end,
+              decoration: new InputDecoration(
+                labelText: "用户姓名",
+                helperText: "姓名为2~4个汉字",
+                isDense: true,
+                prefixText: "用户姓名",
+                filled: true,
+              ),
+              controller: _nameController,
+
+            ),
+            new TextField(
+              textAlign: TextAlign.end,
+              decoration: new InputDecoration(
+                labelText: "用户身份证",
+                helperText: "身份证号码为18位",
+                isDense: true,
+                prefixText: "用户身份证",
+                filled: true,
+              ),
+              controller: _idController,
+            ),
+            new Container(
+              height: 12.0,
+            ),
             new Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                new Text("*用户姓名:"),
-                new Expanded(
-                  child: new TextField(
-                    textAlign: TextAlign.end,
-                    decoration:
-                        new InputDecoration.collapsed(hintText: "请输入姓名"),
-                  ),
+                new MaterialButton(
+                    onPressed: () {
+                      var resp = new BaseResp('{"msg": "取消", "code": 200}');
+                      Navigator.of(context).pop<BaseResp>(resp);
+                    },
+                    child: new Text("取消")),
+                new MaterialButton(
+                  onPressed: () {
+                    var resp = new BaseResp('{"msg": "成功", "code": 200}');
+                    Navigator.of(context).pop<BaseResp>(resp);
+                  },
+                  color: gold,
+                  splashColor: Colors.amberAccent,
+                  child: new Text("提交"),
                 ),
               ],
-            ),
-            new Text("3"),
-            new Text("4"),
-            new Text("5"),
-            new JunButton(() {
-              var resp = new BaseResp('{"msg": "成功", "code": 200}');
-              Navigator.of(context).pop<BaseResp>(resp);
-            }, "提交"),
+            )
           ],
         ),
       ),

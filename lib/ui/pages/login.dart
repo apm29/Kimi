@@ -137,7 +137,7 @@ class LoginState extends State<LoginPage> {
   }
 
   void performLogin() {
-    login(cancelToken, _nameController.text.trim(), _passController.text.trim())
+    login(context,cancelToken, _nameController.text.trim(), _passController.text.trim())
         .then((resp) async {
       var baseResp = BaseResp<Login>(resp.data);
       if (baseResp.isSuccess()) {

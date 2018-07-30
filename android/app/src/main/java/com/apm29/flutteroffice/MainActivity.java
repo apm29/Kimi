@@ -1,4 +1,4 @@
-package com.example.flutteroffice;
+package com.apm29.flutteroffice;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

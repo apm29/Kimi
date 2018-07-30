@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_office/model/api.dart';
+import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/pages/splash.dart';
 import 'package:stack_trace/stack_trace.dart';
 
@@ -48,6 +49,7 @@ class MyApp extends StatelessWidget {
       home: new SplashPage(),
       routes: <String, WidgetBuilder>{
         '/splash': (BuildContext context) => new SplashPage(),
+        '/main':(BuildContext context) => new MainPage(),
       },
     );
   }

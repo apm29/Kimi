@@ -20,7 +20,7 @@ class SplashPage extends StatelessWidget {
 
   Widget build(BuildContext context) {
     checkPermissions(context);
-    return Container(
+    return new Container(
         padding: new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         color: Colors.white,
         child: new Image.asset(
@@ -39,7 +39,7 @@ class SplashPage extends StatelessWidget {
   }
 
   void checkProfile(BuildContext context) {
-    profile(cancelToken).then((v) {
+    profile(context,cancelToken).then((v) {
       BaseResp<Profile> resp = new BaseResp<Profile>(v.data);
       if (resp.isSuccess()) {
         if (resp.data.type != 0) {
