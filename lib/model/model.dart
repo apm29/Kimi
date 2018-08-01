@@ -1,6 +1,6 @@
 import 'dart:convert' show json;
 
-class BaseResp<T> {
+class BaseResp<T>{
   String msg;
   int code;
   T data;
@@ -20,15 +20,27 @@ class BaseResp<T> {
     this.data = map["data"];
   }
 
+  BaseResp.fromMap(Map map){
+    this.msg = map["msg"];
+    this.code = map["code"];
+    switch(T){
+      case Profile:
+        map["data"] = map["data"]==null?null:Profile.fromJson(map["data"]);
+        break;
+      case Login:
+        map["data"] = map["data"]==null?null:Login.fromJson(map["data"]);
+        break;
+    }
+    this.data = map["data"];
+  }
+
   bool isSuccess() {
     return code ==200;
   }
 }
 
-abstract class FromJson{
-  FromJson.fromJson(String json);
-}
-class Profile{
+
+class Profile {
 
   int is_master;
   int is_real;

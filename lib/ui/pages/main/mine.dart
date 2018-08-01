@@ -18,6 +18,8 @@ class MineState extends State<MineFragment> {
     return new Scaffold(
       body: new Center(
           child: new ListView(
+            shrinkWrap: true,
+        physics:  new ClampingScrollPhysics(),
         children: <Widget>[
           new JunButton(() {
             SharedPreferences.getInstance().then((instance) {
@@ -32,14 +34,17 @@ class MineState extends State<MineFragment> {
           new JunButton(() {
             SharedPreferences.getInstance().then((instance) {
               instance.clear();
-              profile(context,new CancelToken());
+              profile(context, new CancelToken());
             });
           }, "profile"),
-          new JunButton(() {
-            Navigator.push(context, new MaterialPageRoute(builder: (context){
-              return new BlankPage();
-            }));
-          }, "new page"),
+          new Hero(
+            tag: "hero-new-page",
+            child: new JunButton(() {
+              Navigator.push(context, new MaterialPageRoute(builder: (context) {
+                return new BlankPage();
+              }));
+            }, "new page"),
+          ),
         ],
       )),
     );
@@ -52,20 +57,31 @@ class BlankPage extends StatelessWidget {
     return new Scaffold(
       body: new Center(
           child: new ListView(
+        children: <Widget>[
+          new JunButton(() {
+            SharedPreferences.getInstance().then((instance) {
+              instance.clear();
+              profile(context, new CancelToken());
+            });
+          }, "profile"),
+          new Hero(
+            tag: "hero-new-page",
+            child: new JunButton(() {
+              Navigator.push(context, new MaterialPageRoute(builder: (context) {
+                return new BlankPage();
+              }));
+            }, "new page"),
+          ),
+          new Row(
+            mainAxisSize: MainAxisSize.max,
             children: <Widget>[
-              new JunButton(() {
-                SharedPreferences.getInstance().then((instance) {
-                  instance.clear();
-                  profile(context,new CancelToken());
-                });
-              }, "profile"),
-              new JunButton(() {
-                Navigator.push(context, new MaterialPageRoute(builder: (context){
-                  return new BlankPage();
-                }));
-              }, "new page"),
+              new Expanded(flex: 2,child: new Container(color:Colors.amber,child: new Text("A"))),
+              new Container(color:Colors.blue,child: new Text("B")),
+              new Expanded(child: new Container(color:Colors.lightGreenAccent,child: new Text("C"))),
             ],
-            )),
-      );
+          )
+        ],
+      )),
+    );
   }
 }

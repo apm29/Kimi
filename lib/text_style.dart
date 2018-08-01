@@ -14,7 +14,7 @@ final commonTextStyle = baseTextStyle.copyWith(
 final headerTitleStyle = baseTextStyle.copyWith(
     color: Colors.black54, fontSize: 20.0, fontWeight: FontWeight.w400);
 final hintTextStyle =
-    baseTextStyle.copyWith(color: Colors.black54, fontSize: 22.0);
+    baseTextStyle.copyWith(color: Colors.black54, fontSize: 16.0);
 final buttonTextStyle = baseTextStyle.copyWith(
     color: Colors.black
 );

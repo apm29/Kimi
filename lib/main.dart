@@ -18,9 +18,9 @@ const MaterialColor gold = const MaterialColor(
   _goldPrimaryValue,
   const <int, Color>{
     50: const Color(0xCCD7B47D),
-    100: const Color(0xCCD7B47D),
+    100: const Color(0xCED7B47D),
     200: const Color(0xFFF1B47D),
-    300: const Color(0xFFF1B47D),
+    300: const Color(0xFFF1A47D),
     400: const Color(0xFFD7B47D),
     500: const Color(_goldPrimaryValue),
     600: const Color(0xFFBA9C68),
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
         // "hot reload" (press "r" in the console where you ran "flutter run",
         // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
         // counter didn't reset back to zero; the application is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: gold,
       ),
       home: new SplashPage(),
       routes: <String, WidgetBuilder>{

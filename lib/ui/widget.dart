@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_office/main.dart';
 import 'package:flutter_office/text_style.dart';
@@ -49,6 +51,7 @@ class TextState extends State<TextInput> {
           children: <Widget>[
             new Expanded(
               child: new TextField(
+
                 controller: controller,
                 obscureText: obscure?!_obscureMask:false,
                 style: hintTextStyle.copyWith(
@@ -59,7 +62,7 @@ class TextState extends State<TextInput> {
                 maxLength: maxLength,
                 decoration: new InputDecoration.collapsed(
                   hintText: hint,
-                  hintStyle: hintTextStyle,
+                  hintStyle: hintTextStyle.copyWith(fontSize: 22.0),
                 ),
               ),
             ),
@@ -90,6 +93,7 @@ class TextState extends State<TextInput> {
 class JunButton extends StatelessWidget {
   final VoidCallback callback;
   final String text;
+  // ignore: conflicting_dart_import
   final TextStyle textStyle;
   JunButton(this.callback,this.text,{this.textStyle = baseTextStyle});
 
@@ -107,5 +111,74 @@ class JunButton extends StatelessWidget {
         color: gold,
       ),
     );
+  }
+}
+
+
+class GradientAppBar extends StatelessWidget {
+  final String title;
+
+  GradientAppBar(this.title);
+
+  @override
+  Widget build(BuildContext context) {
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    return new Container(
+      color: gold[500],
+      height: 54.0 + statusBarHeight,
+      padding: new EdgeInsets.only(top: statusBarHeight),
+      child: new DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: new LinearGradient(
+              colors: [
+                gold[500],
+                gold[700],
+              ],
+              begin: const FractionalOffset(0.0, 0.0),
+              end: const FractionalOffset(1.0, 0.0),
+              stops: [0.0, 1.0],
+              tileMode: TileMode.clamp),
+          ),
+        child: new Stack(
+          alignment: AlignmentDirectional.centerStart,
+//          crossAxisAlignment: CrossAxisAlignment.center,
+//          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+//            new Padding(
+//              padding: const EdgeInsets.all(8.0),
+//              child: new Icon(Icons.keyboard_arrow_left),
+//              ),
+            Center(
+              child: new Text(
+                title,
+                textAlign: TextAlign.center,
+                style: baseTextStyle.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                    fontSize: 22.0),
+                ),
+            ),
+            new Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: new Icon(Icons.keyboard_arrow_left),
+              ),
+          ],
+          ),
+        ),
+      );
+  }
+}
+
+class TransparentAppBar extends StatelessWidget {
+  final String name;
+
+  TransparentAppBar(this.name);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      margin: new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+      child: new BackButton(color: Colors.white),
+      );
   }
 }

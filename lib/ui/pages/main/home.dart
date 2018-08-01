@@ -1,8 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_office/images.dart';
 import 'package:flutter_office/main.dart';
+import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/text_style.dart';
+import 'package:flutter_office/ui/pages/info/applicant.dart';
 import 'package:flutter_office/ui/widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -53,9 +56,18 @@ class HomeState extends State<HomeFragment> {
         barrierDismissible: false,
         builder: (context) {
           return new NewApplicantDialog();
-        }).then((success) {
-      if (success != null) Fluttertoast.showToast(msg: success.msg);
+        }).then((baseResp) {
+      if (baseResp != null) Fluttertoast.showToast(msg: baseResp.msg);
+      if (baseResp.isSuccess()) {
+        _doEditApplicant();
+      }
     });
+  }
+
+  void _doEditApplicant() {
+    Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a,b,c){
+      return new ApplicantPage();
+    }));
   }
 }
 
@@ -67,8 +79,9 @@ class NewApplicantDialog extends StatefulWidget {
 }
 
 class NewApplicantState extends State<NewApplicantDialog> {
-  var _idController = new TextEditingController();
-  var _nameController = new TextEditingController();
+  var _idController = new TextEditingController(text:"330681199112151718");
+  var _nameController = new TextEditingController(text: "该隐");
+  CancelToken cancelToken = new CancelToken();
 
   @override
   Widget build(BuildContext context) {
@@ -81,29 +94,29 @@ class NewApplicantState extends State<NewApplicantDialog> {
       content: new Container(
         width: MediaQuery.of(context).size.width,
         margin: new EdgeInsets.symmetric(horizontal: 16.0),
-        child: new Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: new ListView(
+          shrinkWrap: true,
+//          mainAxisSize: MainAxisSize.min,
+//          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             new TextField(
+              maxLength: 8,
               textAlign: TextAlign.end,
               decoration: new InputDecoration(
                 labelText: "用户姓名",
                 helperText: "姓名为2~4个汉字",
                 isDense: true,
-                prefixText: "用户姓名",
                 filled: true,
               ),
               controller: _nameController,
-
             ),
             new TextField(
               textAlign: TextAlign.end,
+              maxLength: 18,
               decoration: new InputDecoration(
                 labelText: "用户身份证",
                 helperText: "身份证号码为18位",
                 isDense: true,
-                prefixText: "用户身份证",
                 filled: true,
               ),
               controller: _idController,
@@ -117,15 +130,13 @@ class NewApplicantState extends State<NewApplicantDialog> {
               children: <Widget>[
                 new MaterialButton(
                     onPressed: () {
-                      var resp = new BaseResp('{"msg": "取消", "code": 200}');
+                      var map = {"msg": "取消", "code": 400};
+                      var resp = new BaseResp.fromMap(map);
                       Navigator.of(context).pop<BaseResp>(resp);
                     },
                     child: new Text("取消")),
                 new MaterialButton(
-                  onPressed: () {
-                    var resp = new BaseResp('{"msg": "成功", "code": 200}');
-                    Navigator.of(context).pop<BaseResp>(resp);
-                  },
+                  onPressed: _submitApplicant,
                   color: gold,
                   splashColor: Colors.amberAccent,
                   child: new Text("提交"),
@@ -136,5 +147,18 @@ class NewApplicantState extends State<NewApplicantDialog> {
         ),
       ),
     );
+  }
+
+  void _submitApplicant() async {
+    var name = _nameController.text;
+    var idCard = _idController.text;
+    if (name.isEmpty || idCard.isEmpty) {
+      Fluttertoast.showToast(msg: "身份证/姓名不可为空");
+      return;
+    }
+    var response = await can(context, cancelToken, name, idCard);
+    print(response.data);
+    var baseResp = new BaseResp(response.data);
+    Navigator.of(context).pop<BaseResp>(baseResp);
   }
 }
