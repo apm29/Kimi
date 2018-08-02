@@ -5,7 +5,7 @@ import 'package:flutter_office/main.dart';
 import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/text_style.dart';
-import 'package:flutter_office/ui/pages/info/applicant.dart';
+import 'package:flutter_office/ui/pages/application/applicant.dart';
 import 'package:flutter_office/ui/widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -65,8 +65,8 @@ class HomeState extends State<HomeFragment> {
   }
 
   void _doEditApplicant() {
-    Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a,b,c){
-      return new ApplicantPage();
+    Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a, b, c) {
+      return new ApplicantPage(274);
     }));
   }
 }
@@ -77,14 +77,15 @@ class NewApplicantDialog extends StatefulWidget {
     return new NewApplicantState();
   }
 }
-
+///applicant validate dialog
 class NewApplicantState extends State<NewApplicantDialog> {
-  var _idController = new TextEditingController(text:"330681199112151718");
+  var _idController = new TextEditingController(text: "330681199112151718");
   var _nameController = new TextEditingController(text: "该隐");
   CancelToken cancelToken = new CancelToken();
 
   @override
   Widget build(BuildContext context) {
+
     return new AlertDialog(
       title: new Center(
           child: new Text(
@@ -100,7 +101,7 @@ class NewApplicantState extends State<NewApplicantDialog> {
 //          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             new TextField(
-              maxLength: 8,
+              maxLength: 4,
               textAlign: TextAlign.end,
               decoration: new InputDecoration(
                 labelText: "用户姓名",
@@ -159,6 +160,6 @@ class NewApplicantState extends State<NewApplicantDialog> {
     var response = await can(context, cancelToken, name, idCard);
     print(response.data);
     var baseResp = new BaseResp(response.data);
-    Navigator.of(context).pop<BaseResp>(baseResp);
+    if (baseResp.isSuccess()) Navigator.of(context).pop<BaseResp>(baseResp);
   }
 }

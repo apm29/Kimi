@@ -65,12 +65,12 @@ class SplashPage extends StatelessWidget {
   }
 
   void checkProfile(BuildContext context) {
-    profile(context, cancelToken).then((v) {
-      BaseResp<Profile> resp = new BaseResp<Profile>(v.data);
-      if (resp.isSuccess()) {
-        if (resp.data.type != 0) {
+    profile(context, cancelToken).then((resp) {
+      BaseResp<UserProfile> baseResp = new BaseResp<UserProfile>(resp.data);
+      if (baseResp.isSuccess()) {
+        if (baseResp.data.type != 0) {
           toMain(context);
-        } else if (resp.data.is_real != 0) {
+        } else if (baseResp.data.is_real != 0) {
           toMain(context);
         } else {
           toLogin(context);

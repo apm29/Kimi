@@ -158,10 +158,15 @@ class GradientAppBar extends StatelessWidget {
                     fontSize: 22.0),
                 ),
             ),
-            new Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: new Icon(Icons.keyboard_arrow_left),
-              ),
+            GestureDetector(
+              onTap: (){
+                Navigator.pop(context);
+              },
+              child: new Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: new Icon(Icons.keyboard_arrow_left),
+                ),
+            ),
           ],
           ),
         ),

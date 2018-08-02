@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/ui/pages/login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -107,6 +108,7 @@ Future<Response> login(
       dio.post("/v1/user/login", data: data, cancelToken: cancelToken);
   return future;
 }
+
 ///  13. 进件客户验证
 ///  POST /v1/application/can
 ///  Request Body
@@ -125,8 +127,19 @@ Future<Response> can(
     "id_card_no": idCard,
   };
   Future<Response> future =
-  dio.post("/v1/application/can", data: data, cancelToken: cancelToken);
+      dio.post("/v1/application/can", data: data, cancelToken: cancelToken);
   return future;
+}
+
+Future<Response> info(
+    BuildContext context, CancelToken cancelToken, id) {
+  add401Interceptor(context);
+  data["biz_content"] = {
+    "id": id,
+  };
+  var post = dio.post("/v1/application/info",
+      data: data, cancelToken: cancelToken);
+  return post;
 }
 
 void add401Interceptor(BuildContext context) {
@@ -149,3 +162,5 @@ void add401Interceptor(BuildContext context) {
     return response; // continue
   };
 }
+
+
