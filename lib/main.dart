@@ -4,11 +4,13 @@ import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/pages/splash.dart';
 import 'package:stack_trace/stack_trace.dart';
 
-void main(){
-  initDio();
-  Chain.capture((){runApp(new MyApp());},onError:(e,chain){
+void main() async{
+  await initDio();
+  Chain.capture(() {
+    runApp(new MyApp());
+  }, onError: (e, chain) {
     print("Caught error $e\n"
-              "${chain.terse}");
+        "${chain.terse}");
   });
 }
 
@@ -17,8 +19,8 @@ const int _goldPrimaryValue = 0xFFD7B47D;
 const MaterialColor gold = const MaterialColor(
   _goldPrimaryValue,
   const <int, Color>{
-    50: const Color(0xCCD7B47D),
-    100: const Color(0xCED7B47D),
+    50: const Color(0xCCFFF9C4),
+    100: const Color(0xAEFFF9C4),
     200: const Color(0xFFF1B47D),
     300: const Color(0xFFF1A47D),
     400: const Color(0xFFD7B47D),
@@ -49,7 +51,7 @@ class MyApp extends StatelessWidget {
       home: new SplashPage(),
       routes: <String, WidgetBuilder>{
         '/splash': (BuildContext context) => new SplashPage(),
-        '/main':(BuildContext context) => new MainPage(),
+        '/main': (BuildContext context) => new MainPage(),
       },
     );
   }

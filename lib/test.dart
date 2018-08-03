@@ -22,10 +22,11 @@ Future<Response<BaseResp>> info(id) {
   };
   Future<Response<BaseResp>> post = dio
       .post<BaseResp>("/v1/application/info",
-          data: data, cancelToken: new CancelToken()).then((resp){
-            print(resp.data.runtimeType);
-            BaseResp<Applicant> baseResp = new BaseResp(resp.data as String);
-            resp.data = baseResp;
+          data: data, cancelToken: new CancelToken())
+      .then((resp) {
+    print(resp.data.runtimeType);
+    BaseResp<Applicant> baseResp = new BaseResp(resp.data as String);
+    resp.data = baseResp;
   });
   return post;
 }

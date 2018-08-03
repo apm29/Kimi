@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_office/const.dart';
+import 'package:flutter_office/main.dart';
 import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/text_style.dart';
 import 'package:flutter_office/ui/widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
 
 enum InputType { TEXT, SELECT, CHECK }
 
@@ -22,7 +25,7 @@ class ApplicantPersonalInfoPage extends StatefulWidget {
   ApplicantPersonalInfoPage(this.applicationId);
 }
 
-class SliverUiRule{
+class SliverUiRule {
   String title;
   String hint;
   InputType type;
@@ -31,17 +34,17 @@ class SliverUiRule{
   String suffix;
   TransformRule rule;
   TextStyle style;
-
   String field;
+  bool visible;
 
-  SliverUiRule(this.field,this.title , this.hint , this.type , this.imperative ,
-      this.controller , this.suffix , this.rule,{this.style} );
-
+  SliverUiRule(this.field, this.title, this.hint, this.type, this.imperative,
+      this.controller, this.suffix, this.rule,
+      {this.style, this.visible = true});
 }
 
-
-
 abstract class TransformRule<T> {
+  Map<String, T> map;
+
   String getString(T value);
 
   T getValue(String text);
@@ -70,8 +73,8 @@ class GenderRule extends TransformRule<int> {
 
   @override
   String getString(int value) {
-    for(String key in map.keys){
-      if(map[key]==value){
+    for (String key in map.keys) {
+      if (map[key] == value) {
         return key;
       }
     }
@@ -94,8 +97,8 @@ class MarriageRule extends TransformRule<int> {
 
   @override
   String getString(int value) {
-    for(String key in map.keys){
-      if(map[key]==value){
+    for (String key in map.keys) {
+      if (map[key] == value) {
         return key;
       }
     }
@@ -117,8 +120,8 @@ class StaffingRule extends TransformRule<int> {
 
   @override
   String getString(int value) {
-    for(String key in map.keys){
-      if(map[key]==value){
+    for (String key in map.keys) {
+      if (map[key] == value) {
         return key;
       }
     }
@@ -139,8 +142,8 @@ class RepaymentTypeRule extends TransformRule<int> {
 
   @override
   String getString(int value) {
-    for(String key in map.keys){
-      if(map[key]==value){
+    for (String key in map.keys) {
+      if (map[key] == value) {
         return key;
       }
     }
@@ -155,29 +158,170 @@ class RepaymentTypeRule extends TransformRule<int> {
 
 class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
   final int applicationId;
-  Map<String,SliverUiRule> ruleUi = <String,SliverUiRule>{
-    "real_name"                   :new SliverUiRule("real_name",                       "姓名",        "请输入姓名",             InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()            ),
-    "id_card_no"                  :new SliverUiRule("id_card_no",                      "身份证",       "请输入身份证",            InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()            ),
-    "gender"                       :new SliverUiRule("gender",                          "性别",        "请选择性别",             InputType.SELECT,    true,       new TextEditingController(),      null,     new GenderRule()             ),
-    "marital_status"               :new SliverUiRule("marital_status",                  "婚姻状况",      "请选择婚姻状况",           InputType.SELECT,    true,       new TextEditingController(),      null,     new MarriageRule()                 ),
-    "couple_real_name"             :new SliverUiRule("couple_real_name",                "配偶姓名",      "请输入配偶姓名",           InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                ),
-    "couple_id_card_no"            :new SliverUiRule("couple_id_card_no",               "配偶身份证",     "请输入配偶身份证",          InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                ),
-    "company_name"                :new SliverUiRule("company_name",                    "工作单位(全称)",  "请输入工作单位(全称)",       InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                        ),
-    "department"                  :new SliverUiRule("department",                      "所在部门",      "请输入所在部门",           InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                ),
-    "position_level"               :new SliverUiRule("position_level",                  "职务",        "请输入职务",             InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()            ),
-    "staffing"                    :new SliverUiRule("staffing",                        "编制",        "请选择编制",             InputType.SELECT,     true,      new TextEditingController(),      null,     new StaffingRule()             ),
-    "year_income"                  :new SliverUiRule("year_income",                     "年收入",       "请输入年收入",            InputType.TEXT,      true,       new TextEditingController(),      "万元",     new S2STransformRule()            ),
-    "foundation_month_amount"      :new SliverUiRule("foundation_month_amount",         "公积金月缴额",    "请输入公积金月缴额",         InputType.TEXT,      true,       new TextEditingController(),      "元",      new S2STransformRule()                    ),
-    "repayment_type"              :new SliverUiRule("repayment_type",                  "还款方式",      "请选择还款方式",           InputType.SELECT,    true,       new TextEditingController(),      null,     new RepaymentTypeRule()                 ),
-    "term"                        :new SliverUiRule("term",                            "期限",        "请输入期限",             InputType.TEXT,      true,       new TextEditingController(),      "月",      new S2STransformRule()            ),
-    "credit_account"               :new SliverUiRule("credit_account",                  "征信账号",      "请输入征信账号",           InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                ),
-    "credit_account_password"     :new SliverUiRule("credit_account_password",         "征信密码",      "请输入征信密码",           InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                ),
-    "credit_account_code"          :new SliverUiRule("credit_account_code",             "征信验证码",     "请输入征信验证码",          InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                ),
-    "foundation_account"           :new SliverUiRule("foundation_account",              "公积金账号",     "请输入公积金账号",          InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                ),
-    "foundation_account_password"  :new SliverUiRule("foundation_account_password",     "公积金密码",     "请输入公积金密码",          InputType.TEXT,      true,       new TextEditingController(),      null,     new S2STransformRule()                ),
-    "gov_affairs_account"         :new SliverUiRule("gov_affairs_account",             "政务网账号",     "请输入政务网账号",          InputType.TEXT,      false,      new TextEditingController(),      null,     new S2STransformRule()                ),
-    "gov_affairs_account_password" :new SliverUiRule("gov_affairs_account_password",    "政务网密码",     "请输入政务网密码",          InputType.TEXT,      false,      new TextEditingController(),      null,     new S2STransformRule()                ),
+  Map<String, SliverUiRule> ruleUi = <String, SliverUiRule>{
+    "real_name": new SliverUiRule("real_name", "姓名", "请输入姓名", InputType.TEXT,
+        true, new TextEditingController(), null, new S2STransformRule()),
+    "id_card_no": new SliverUiRule(
+        "id_card_no",
+        "身份证",
+        "请输入身份证",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "gender": new SliverUiRule("gender", "性别", "请选择性别", InputType.SELECT, true,
+        new TextEditingController(), null, new GenderRule()),
+    "marital_status": new SliverUiRule(
+        "marital_status",
+        "婚姻状况",
+        "请选择婚姻状况",
+        InputType.SELECT,
+        true,
+        new TextEditingController(),
+        null,
+        new MarriageRule()),
+    "couple_real_name": new SliverUiRule(
+        "couple_real_name",
+        "配偶姓名",
+        "请输入配偶姓名",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "couple_id_card_no": new SliverUiRule(
+        "couple_id_card_no",
+        "配偶身份证",
+        "请输入配偶身份证",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "company_name": new SliverUiRule(
+        "company_name",
+        "工作单位(全称)",
+        "请输入工作单位(全称)",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "department": new SliverUiRule(
+        "department",
+        "所在部门",
+        "请输入所在部门",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "position_level": new SliverUiRule(
+        "position_level",
+        "职务",
+        "请输入职务",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "staffing": new SliverUiRule("staffing", "编制", "请选择编制", InputType.SELECT,
+        true, new TextEditingController(), null, new StaffingRule()),
+    "year_income": new SliverUiRule(
+        "year_income",
+        "年收入",
+        "请输入年收入",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        "万元",
+        new S2STransformRule()),
+    "foundation_month_amount": new SliverUiRule(
+        "foundation_month_amount",
+        "公积金月缴额",
+        "请输入公积金月缴额",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        "元",
+        new S2STransformRule()),
+    "repayment_type": new SliverUiRule(
+        "repayment_type",
+        "还款方式",
+        "请选择还款方式",
+        InputType.SELECT,
+        true,
+        new TextEditingController(),
+        null,
+        new RepaymentTypeRule()),
+    "term": new SliverUiRule("term", "期限", "请输入期限", InputType.TEXT, true,
+        new TextEditingController(), "月", new S2STransformRule()),
+    "credit_account": new SliverUiRule(
+        "credit_account",
+        "征信账号",
+        "请输入征信账号",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "credit_account_password": new SliverUiRule(
+        "credit_account_password",
+        "征信密码",
+        "请输入征信密码",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "credit_account_code": new SliverUiRule(
+        "credit_account_code",
+        "征信验证码",
+        "请输入征信验证码",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "foundation_account": new SliverUiRule(
+        "foundation_account",
+        "公积金账号",
+        "请输入公积金账号",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "foundation_account_password": new SliverUiRule(
+        "foundation_account_password",
+        "公积金密码",
+        "请输入公积金密码",
+        InputType.TEXT,
+        true,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "gov_affairs_account": new SliverUiRule(
+        "gov_affairs_account",
+        "政务网账号",
+        "请输入政务网账号",
+        InputType.TEXT,
+        false,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
+    "gov_affairs_account_password": new SliverUiRule(
+        "gov_affairs_account_password",
+        "政务网密码",
+        "请输入政务网密码",
+        InputType.TEXT,
+        false,
+        new TextEditingController(),
+        null,
+        new S2STransformRule()),
   };
+
   PersonalInfoState(this.applicationId) {
     initData();
   }
@@ -222,174 +366,12 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
               transRule.getString(applicant["job"][key]).toString();
         }
       }
-
+      //是否已婚
+      ruleUi["couple_real_name"].visible = applicant["marital_status"] == 1;
+      ruleUi["couple_id_card_no"].visible = applicant["marital_status"] == 1;
     });
   }
 
-//  final List<String> title = <String>[
-//    "姓名",
-//    "身份证",
-//    "性别",
-//    "婚姻状况",
-//    "配偶姓名",
-//    "配偶身份证",
-//    "工作单位(全称)",
-//    "所在部门",
-//    "职务",
-//    "编制",
-//    "年收入",
-//    "公积金月缴额",
-//    "还款方式",
-//    "期限",
-//    "征信账号",
-//    "征信密码",
-//    "征信验证码",
-//    "公积金账号",
-//    "公积金密码",
-//    "政务网账号",
-//    "政务网密码",
-//  ];
-//  final List<String> hint = <String>[
-//    "请输入姓名",
-//    "请输入身份证",
-//    "请选择性别",
-//    "请选择婚姻状况",
-//    "请输入配偶姓名",
-//    "请输入配偶身份证",
-//    "请输入工作单位(全称)",
-//    "请输入所在部门",
-//    "请输入职务",
-//    "请选择编制",
-//    "请输入年收入",
-//    "请输入公积金月缴额",
-//    "请选择还款方式",
-//    "请输入期限",
-//    "请输入征信账号",
-//    "请输入征信密码",
-//    "请输入征信验证码",
-//    "请输入公积金账号",
-//    "请输入公积金密码",
-//    "请输入政务网账号",
-//    "请输入政务网密码",
-//  ];
-//  final List<InputType> type = <InputType>[
-//    InputType.TEXT, //"姓名",
-//    InputType.TEXT, //"身份证",
-//    InputType.SELECT, //"性别",
-//    InputType.SELECT, //"婚姻状况",
-//    InputType.TEXT, //"配偶姓名",
-//    InputType.TEXT, //"配偶身份证",
-//    InputType.TEXT, //"工作单位(全称)"
-//    InputType.TEXT, //"所在部门",
-//    InputType.TEXT, //"职务",
-//    InputType.SELECT, //"编制",
-//    InputType.TEXT, //"年收入",
-//    InputType.TEXT, //"公积金月缴额",
-//    InputType.SELECT, //"还款方式",
-//    InputType.TEXT, //"期限",
-//    InputType.TEXT, //"征信账号",
-//    InputType.TEXT, //"征信密码",
-//    InputType.TEXT, //"征信验证码",
-//    InputType.TEXT, //"公积金账号",
-//    InputType.TEXT, //"公积金密码",
-//    InputType.TEXT, //"政务网账号",
-//    InputType.TEXT, //"政务网密码",
-//  ];
-//
-//  final List<bool> imperative = <bool>[
-//    true, //"姓名",
-//    true, //"身份证",
-//    true, //"性别",
-//    true, //"婚姻状况",
-//    true, //"配偶姓名",
-//    true, //"配偶身份证",
-//    true, //"工作单位(全称)"
-//    true, //"所在部门",
-//    true, //"职务",
-//    true, //"编制",
-//    true, //"年收入",
-//    true, //"公积金月缴额",
-//    true, //"还款方式",
-//    true, //"期限",
-//    true, //"征信账号",
-//    true, //"征信密码",
-//    true, //"征信验证码",
-//    true, //"公积金账号",
-//    true, //"公积金密码",
-//    false, //"政务网账号",
-//    false, //"政务网密码",
-//  ];
-//  final List<String> suffix = <String>[
-//    null, //"姓名",
-//    null, //"身份证",
-//    null, //"性别",
-//    null, //"婚姻状况",
-//    null, //"配偶姓名",
-//    null, //"配偶身份证",
-//    null, //"工作单位(全称)"
-//    null, //"所在部门",
-//    null, //"职务",
-//    null, //"编制",
-//    "万元", //"年收入",
-//    "元", //"公积金月缴额",
-//    null, //"还款方式",
-//    "月", //"期限",
-//    null, //"征信账号",
-//    null, //"征信密码",
-//    null, //"征信验证码",
-//    null, //"公积金账号",
-//    null, //"公积金密码",
-//    null, //"政务网账号",
-//    null, //"政务网密码",
-//  ];
-//
-//  final Map<String, TextEditingController> controller = {
-//    "real_name": new TextEditingController(), //"姓名",
-//    "id_card_no": new TextEditingController(), //"身份证",
-//    "gender": new TextEditingController(), //"性别",
-//    "marital_status": new TextEditingController(), //"婚姻状况",
-//    "couple_real_name": new TextEditingController(), //"配偶姓名",
-//    "couple_id_card_no": new TextEditingController(), //"配偶身份证",
-//    "company_name": new TextEditingController(), //"工作单位(全称)"
-//    "department": new TextEditingController(), //"所在部门",
-//    "position_level": new TextEditingController(), //"职务",
-//    "staffing": new TextEditingController(), //"编制",
-//    "year_income": new TextEditingController(), //"年收入",
-//    "foundation_month_amount": new TextEditingController(), //"公积金月缴额",
-//    "repayment_type": new TextEditingController(), //"还款方式",
-//    "term": new TextEditingController(), //"期限",
-//    "credit_account": new TextEditingController(), //"征信账号",
-//    "credit_account_password": new TextEditingController(), //"征信密码",
-//    "credit_account_code": new TextEditingController(), //"征信验证码",
-//    "foundation_account": new TextEditingController(), //"公积金账号",
-//    "foundation_account_password": new TextEditingController(), //"公积金密码",
-//    "gov_affairs_account": new TextEditingController(), //"政务网账号",
-//    "gov_affairs_account_password": new TextEditingController(), //"政务网密码",
-//  };
-//  final Map<String, TransformRule> rule = {
-//    "real_name": new S2STransformRule(), //"姓名",
-//    "id_card_no": new S2STransformRule(), //"身份证",
-//    "gender": new GenderRule(), //"性别",
-//    "marital_status": new MarriageRule(), //"婚姻状况",
-//    "couple_real_name": new S2STransformRule(), //"配偶姓名",
-//    "couple_id_card_no": new S2STransformRule(), //"配偶身份证",
-//    "company_name": new S2STransformRule(), //"工作单位(全称)"
-//    "department": new S2STransformRule(), //"所在部门",
-//    "position_level": new S2STransformRule(), //"职务",
-//    "staffing": new StaffingRule(), //"编制",
-//    "year_income": new S2STransformRule(), //"年收入",
-//    "foundation_month_amount": new S2STransformRule(), //"公积金月缴额",
-//    "repayment_type": new RepaymentTypeRule(), //"还款方式",
-//    "term": new S2STransformRule(), //"期限",
-//    "credit_account": new S2STransformRule(), //"征信账号",
-//    "credit_account_password": new S2STransformRule(), //"征信密码",
-//    "credit_account_code": new S2STransformRule(), //"征信验证码",
-//    "foundation_account": new S2STransformRule(), //"公积金账号",
-//    "foundation_account_password": new S2STransformRule(), //"公积金密码",
-//    "gov_affairs_account": new S2STransformRule(), //"政务网账号",
-//    "gov_affairs_account_password": new S2STransformRule(), //"政务网密码",
-//  };
-//
   final List<String> keys = [
     "real_name", //"姓名",
     "id_card_no", //"身份证",
@@ -424,21 +406,40 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
             child: new ListView.builder(
               padding: new EdgeInsets.all(0.0),
               itemBuilder: (_, index) {
-                if (index == ruleUi.length * 2)
-                  return new JunButton(() {}, "保存");
-                if (index.isEven)
-                  return _buildRowSliver(
+                if (index == ruleUi.length) return new JunButton(() {}, "保存");
+                return _buildRowSliver(
+                    ruleUi[keys[index]].title,
+                    ruleUi[keys[index]].hint,
+                    ruleUi[keys[index]].type,
+                    ruleUi[keys[index]].imperative,
+                    ruleUi[keys[index]].controller, () {
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return new PickerWidget(ruleUi[keys[index]].title,
+                            ruleUi[keys[index]].rule.map);
+                      }).then((res) {
+                    if (res != null) {
+                      Fluttertoast.showToast(msg: res.toString());
+                      setState(() {
+                        var uiRule = ruleUi[ruleUi.keys.toList()[index]];
+                        uiRule.controller.text = res;
 
-                      ruleUi[keys[index ~/ 2]].title,
-                      ruleUi[keys[index ~/ 2]].hint,
-                      ruleUi[keys[index ~/ 2]].type,
-                      ruleUi[keys[index ~/ 2]].imperative,
-                      ruleUi[keys[index ~/ 2]].controller,
-                      suffix: ruleUi[keys[index ~/ 2]].suffix);
-                else
-                  return _buildSeparatorSliver();
+                        ///其他特异规则
+                        //是否已婚
+                        var marriageRule = ruleUi["marital_status"].rule;
+                        if (marriageRule.map.containsKey(res)) {
+                          ruleUi["couple_real_name"].visible =
+                              marriageRule.getValue(res) == 1;
+                          ruleUi["couple_id_card_no"].visible =
+                              marriageRule.getValue(res) == 1;
+                        }
+                      });
+                    }
+                  });
+                }, ruleUi[keys[index]].suffix, ruleUi[keys[index]].visible);
               },
-              itemCount: ruleUi.length * 2 + 1,
+              itemCount: ruleUi.length + 1,
             ),
           ),
         ],
@@ -448,49 +449,72 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
 
   Widget _buildRowSliver(String title, String hint, InputType type,
       bool imperative, TextEditingController controller,
-      {VoidCallback onPress, String suffix}) {
-    return new Row(
-      mainAxisSize: MainAxisSize.min,
+      [VoidCallback onPress, String suffix, bool visible = true]) {
+    if (!visible) {
+      return new Container(
+        height: 0.0,
+      );
+    }
+    return Column(
       children: <Widget>[
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          child: new Row(
-            children: <Widget>[
-              Text.rich(new TextSpan(children: <TextSpan>[
-                new TextSpan(
-                    text: imperative ? "*" : " ",
-                    style: hintTextStyle.copyWith(
-                        color: Colors.red, fontSize: 16.0)),
-                new TextSpan(
-                    text: title, style: baseTextStyle.copyWith(fontSize: 18.0)),
-              ])),
-            ],
-          ),
+        new Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              child: new Row(
+                children: <Widget>[
+                  Text.rich(new TextSpan(children: <TextSpan>[
+                    new TextSpan(
+                        text: imperative ? "*" : " ",
+                        style: hintTextStyle.copyWith(
+                            color: Colors.red, fontSize: 16.0)),
+                    new TextSpan(
+                        text: title,
+                        style: baseTextStyle.copyWith(fontSize: 18.0)),
+                  ])),
+                ],
+              ),
+            ),
+            Expanded(
+                child: GestureDetector(
+              onTap: type == InputType.SELECT ? onPress : null,
+              child: type == InputType.TEXT
+                  ? TextField(
+                      controller: controller,
+                      decoration: new InputDecoration(
+                          border: InputBorder.none,
+                          suffixIcon: type == InputType.SELECT
+                              ? new Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: new Icon(Icons.keyboard_arrow_down),
+                                )
+                              : null,
+                          hintText: hint,
+                          fillColor: Colors.grey),
+                    )
+                  : new Row(
+                      children: <Widget>[
+                        new Expanded(
+                          child: new Text(
+                              controller.text.isEmpty ? hint : controller.text),
+                        ),
+                        new Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: new Icon(Icons.keyboard_arrow_down),
+                        )
+                      ],
+                    ),
+            )),
+            suffix != null
+                ? new Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: new Text(suffix),
+                  )
+                : new Container()
+          ],
         ),
-        Expanded(
-            child: GestureDetector(
-          onTap: type == InputType.SELECT ? () {} : null,
-          child: TextField(
-            controller: controller,
-            enabled: type == InputType.TEXT,
-            decoration: new InputDecoration(
-                border: InputBorder.none,
-                suffixIcon: type == InputType.SELECT
-                    ? new Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: new Icon(Icons.keyboard_arrow_down),
-                      )
-                    : null,
-                hintText: hint,
-                fillColor: Colors.grey),
-          ),
-        )),
-        suffix != null
-            ? new Padding(
-                padding: EdgeInsets.all(8.0),
-                child: new Text(suffix),
-              )
-            : new Container()
+        _buildSeparatorSliver()
       ],
     );
   }
@@ -499,6 +523,102 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
     return new Container(
       color: Colors.black12,
       height: 0.5,
+    );
+  }
+}
+
+class PickerWidget<T> extends StatelessWidget {
+  final String title;
+  final Map<String, T> map;
+
+  PickerWidget(this.title, this.map);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      backgroundColor: Colors.transparent,
+      body: new Column(
+        children: <Widget>[
+          new Expanded(
+              child: GestureDetector(
+                  child: new Container(
+            constraints: BoxConstraints.expand(),
+          ))),
+          new Container(
+              padding: EdgeInsets.symmetric(vertical: 12.0),
+              decoration: BoxDecoration(
+                  color: gold[500],
+                  boxShadow: [
+                    new BoxShadow(
+                        color: Colors.black26,
+                        offset: Offset(5.0, 0.0),
+                        blurRadius: 5.0,
+                        spreadRadius: 5.0)
+                  ],
+                  borderRadius: new BorderRadiusDirectional.only(
+                      topEnd: new Radius.circular(8.0),
+                      topStart: new Radius.circular(8.0))),
+              child: Center(
+                child: new Text(
+                  "请选择$title",
+                  style: baseTextStyle.copyWith(
+                      fontSize: 20.0, color: Colors.white),
+                ),
+              )),
+          new Container(
+            color: Colors.black12,
+            height: 0.5,
+          ),
+          new Container(
+            decoration: BoxDecoration(
+                color: Colors.white,
+                gradient: new LinearGradient(
+                    colors: [gold[100], Colors.white70],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter)),
+            constraints: BoxConstraints.loose(new Size.fromHeight(260.0)),
+            child: new ListView.builder(
+              physics:
+                  new BouncingScrollPhysics(parent: new PageScrollPhysics()),
+              itemBuilder: (context, index) {
+                return new GestureDetector(
+                  onTap: () {
+                    Navigator.of(context).pop(map.keys.toList()[index]);
+                  },
+                  child: new Container(
+//                    transform:
+//                        new Matrix4.rotationZ(0.06 * (index.isEven ? -1 : 1))
+//                          ..add(new Matrix4.translationValues(
+//                              0.0, 10.0 * (index.isOdd ? -1 : 1), 0.0))
+//                    ..add(new Matrix4.diagonal3(vector.Vector3.all(1.3))),
+                    decoration: new BoxDecoration(
+                      borderRadius: new BorderRadius.circular(0.0),
+                      color: Colors.white,
+                      boxShadow: [
+                        new BoxShadow(
+                          color: Colors.black26,
+                          offset: Offset(0.0, -1.0),
+                          blurRadius: 1.0,
+                        )
+                      ],
+                    ),
+                    constraints:
+                        BoxConstraints.loose(new Size.fromHeight(80.0)),
+                    padding: EdgeInsets.all(16.0),
+                    alignment: AlignmentDirectional.center,
+                    child: new Text(
+                      map.keys.toList()[index],
+                      style: baseTextStyle.copyWith(fontSize: 18.0),
+                    ),
+                  ),
+                );
+              },
+              itemCount: map.length,
+              shrinkWrap: true,
+            ),
+          )
+        ],
+      ),
     );
   }
 }

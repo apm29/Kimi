@@ -51,9 +51,8 @@ class TextState extends State<TextInput> {
           children: <Widget>[
             new Expanded(
               child: new TextField(
-
                 controller: controller,
-                obscureText: obscure?!_obscureMask:false,
+                obscureText: obscure ? !_obscureMask : false,
                 style: hintTextStyle.copyWith(
                     decoration: TextDecoration.none,
                     fontSize: 22.0,
@@ -93,9 +92,11 @@ class TextState extends State<TextInput> {
 class JunButton extends StatelessWidget {
   final VoidCallback callback;
   final String text;
+
   // ignore: conflicting_dart_import
   final TextStyle textStyle;
-  JunButton(this.callback,this.text,{this.textStyle = baseTextStyle});
+
+  JunButton(this.callback, this.text, {this.textStyle = baseTextStyle});
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +115,6 @@ class JunButton extends StatelessWidget {
   }
 }
 
-
 class GradientAppBar extends StatelessWidget {
   final String title;
 
@@ -129,6 +129,9 @@ class GradientAppBar extends StatelessWidget {
       padding: new EdgeInsets.only(top: statusBarHeight),
       child: new DecoratedBox(
         decoration: BoxDecoration(
+          boxShadow: [
+            new BoxShadow(color: Colors.black26,offset: Offset(0.0, 5.0),blurRadius: 5.0,spreadRadius: 0.0)
+          ],
           gradient: new LinearGradient(
               colors: [
                 gold[500],
@@ -138,7 +141,7 @@ class GradientAppBar extends StatelessWidget {
               end: const FractionalOffset(1.0, 0.0),
               stops: [0.0, 1.0],
               tileMode: TileMode.clamp),
-          ),
+        ),
         child: new Stack(
           alignment: AlignmentDirectional.centerStart,
 //          crossAxisAlignment: CrossAxisAlignment.center,
@@ -156,21 +159,21 @@ class GradientAppBar extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                     color: Colors.white,
                     fontSize: 22.0),
-                ),
+              ),
             ),
             GestureDetector(
-              onTap: (){
+              onTap: () {
                 Navigator.pop(context);
               },
               child: new Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: new Icon(Icons.keyboard_arrow_left),
-                ),
+              ),
             ),
           ],
-          ),
         ),
-      );
+      ),
+    );
   }
 }
 
@@ -184,6 +187,6 @@ class TransparentAppBar extends StatelessWidget {
     return new Container(
       margin: new EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: new BackButton(color: Colors.white),
-      );
+    );
   }
 }

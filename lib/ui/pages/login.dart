@@ -150,6 +150,7 @@ class LoginState extends State<LoginPage> {
         _passController.text.trim()).then((resp) async {
       var baseResp = BaseResp<Login>(resp.data);
       if (baseResp.isSuccess()) {
+        data["access_token"] = baseResp.data.access_token;
         prefs
             .setString('access_token', baseResp.data.access_token)
             .then((success) {

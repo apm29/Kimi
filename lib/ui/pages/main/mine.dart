@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/ui/pages/login.dart';
 import 'package:flutter_office/ui/widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MineFragment extends StatefulWidget {
@@ -18,8 +19,8 @@ class MineState extends State<MineFragment> {
     return new Scaffold(
       body: new Center(
           child: new ListView(
-            shrinkWrap: true,
-        physics:  new ClampingScrollPhysics(),
+        shrinkWrap: true,
+        physics: new ClampingScrollPhysics(),
         children: <Widget>[
           new JunButton(() {
             SharedPreferences.getInstance().then((instance) {
@@ -75,10 +76,23 @@ class BlankPage extends StatelessWidget {
           new Row(
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
-              new Expanded(flex: 2,child: new Container(color:Colors.amber,child: new Text("A"))),
-              new Container(color:Colors.blue,child: new Text("B")),
-              new Expanded(child: new Container(color:Colors.lightGreenAccent,child: new Text("C"))),
+              new Expanded(
+                  flex: 2,
+                  child:
+                      new Container(color: Colors.amber, child: new Text("A"))),
+              new Container(color: Colors.blue, child: new Text("B")),
+              new Expanded(
+                  child: new Container(
+                      color: Colors.lightGreenAccent, child: new Text("C"))),
             ],
+          ),
+          new GestureDetector(
+            onTap: () {
+              Fluttertoast.showToast(msg: "hello");
+            },
+            child: new TextField(
+              enabled: false,
+            ),
           )
         ],
       )),

@@ -92,8 +92,8 @@ class ApplicantState extends State<ApplicantPage> {
       padding: EdgeInsets.symmetric(horizontal: 64.0),
       child: new MaterialButton(
         minWidth: 200.0,
-        onPressed: (applicant?.is_editable==true)?() {}:null,
-        color: (applicant?.is_editable==true)?gold:Colors.grey,
+        onPressed: (applicant?.is_editable == true) ? () {} : null,
+        color: (applicant?.is_editable == true) ? gold : Colors.grey,
         splashColor: Colors.amberAccent,
         child: new Text(
           "提交",
@@ -109,8 +109,6 @@ class ApplicantState extends State<ApplicantPage> {
       height: 1.0,
     );
   }
-
-
 
   Widget _buildInfoSliver(
       BuildContext context, String text, PressSliver call, double progress) {
@@ -200,7 +198,7 @@ class ApplicantState extends State<ApplicantPage> {
         if (filled) completed++;
       }
     }
-    if(applicant.house==null||applicant.house.length==0){
+    if (applicant.house == null || applicant.house.length == 0) {
       count++;
     }
     print(completed);
@@ -211,12 +209,10 @@ class ApplicantState extends State<ApplicantPage> {
     });
   }
 
-  void _toAssetsInfo(BuildContext context) {
-
-  }
+  void _toAssetsInfo(BuildContext context) {}
 
   void _toPersonalInfo(BuildContext context) {
-    Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a,b,c){
+    Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a, b, c) {
       return new ApplicantPersonalInfoPage(applicationId);
     }));
   }

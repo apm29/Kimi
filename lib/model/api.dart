@@ -45,7 +45,7 @@ class MyTransformer extends DefaultTransformer {
   }
 }
 
-void initDio() async {
+Future<String> initDio() async {
   dio.interceptor.request.onSend = (Options options) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('access_token');
@@ -87,6 +87,7 @@ void initDio() async {
   prefs = await SharedPreferences.getInstance();
   var token = prefs.getString('access_token');
   data["access_token"] = token;
+  return token;
 }
 
 Future<Response> profile(BuildContext context, CancelToken cancelToken) {
@@ -99,7 +100,6 @@ Future<Response> profile(BuildContext context, CancelToken cancelToken) {
 Future<Response> login(
     BuildContext context, CancelToken cancelToken, name, pass) {
   add401Interceptor(context);
-  data.clear();
   data["biz_content"] = {
     "username": name,
     "password": pass,
@@ -131,14 +131,13 @@ Future<Response> can(
   return future;
 }
 
-Future<Response> info(
-    BuildContext context, CancelToken cancelToken, id) {
+Future<Response> info(BuildContext context, CancelToken cancelToken, id) {
   add401Interceptor(context);
   data["biz_content"] = {
     "id": id,
   };
-  var post = dio.post("/v1/application/info",
-      data: data, cancelToken: cancelToken);
+  var post =
+      dio.post("/v1/application/info", data: data, cancelToken: cancelToken);
   return post;
 }
 
@@ -162,5 +161,3 @@ void add401Interceptor(BuildContext context) {
     return response; // continue
   };
 }
-
-

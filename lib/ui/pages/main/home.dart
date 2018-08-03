@@ -66,7 +66,7 @@ class HomeState extends State<HomeFragment> {
 
   void _doEditApplicant() {
     Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a, b, c) {
-      return new ApplicantPage(274);
+      return new ApplicantPage(293);
     }));
   }
 }
@@ -77,6 +77,7 @@ class NewApplicantDialog extends StatefulWidget {
     return new NewApplicantState();
   }
 }
+
 ///applicant validate dialog
 class NewApplicantState extends State<NewApplicantDialog> {
   var _idController = new TextEditingController(text: "330681199112151718");
@@ -85,7 +86,6 @@ class NewApplicantState extends State<NewApplicantDialog> {
 
   @override
   Widget build(BuildContext context) {
-
     return new AlertDialog(
       title: new Center(
           child: new Text(

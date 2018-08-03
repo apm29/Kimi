@@ -10,49 +10,15 @@ import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/text_style.dart';
 import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/pages/login.dart';
+
 const splash_time = 1;
-class SplashPage extends StatelessWidget {
+
+class SplashPage extends StatefulWidget {
   final CancelToken cancelToken = new CancelToken();
 
   @override
-  StatelessElement createElement() {
-    print("create Element");
-    return super.createElement();
-  }
-
-  Widget build(BuildContext context) {
-    checkPermissions(context);
-    return new Scaffold(
-        body: new Center(
-      child: new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          new Hero(
-            tag: "hero-tag-ic-launcher",
-            child: new Image.asset(
-              launcher,
-              height: 72.0,
-              width: 72.0,
-            ),
-          ),
-          new Container(
-            height: 32.0,
-          ),
-          new Text(
-            "君磊助手",
-            style: headerTitleStyle.copyWith(color: gold),
-          ),
-          new Container(
-            height: 48.0,
-          ),
-          new Text(
-            "『进件速度快,结果快速反馈』",
-            style: headerTitleStyle.copyWith(color: gold),
-          ),
-        ],
-      ),
-    ));
+  SplashPageState createState() {
+    return new SplashPageState();
   }
 
   void toMain(BuildContext context) {
@@ -84,9 +50,7 @@ class SplashPage extends StatelessWidget {
   }
 
   void toLogin(BuildContext context) {
-
-    new Timer(Duration(seconds: splash_time
-                       ), () {
+    new Timer(Duration(seconds: splash_time), () {
       Navigator.pushReplacement(context,
           new PageRouteBuilder(pageBuilder: (_, __, ___) {
         return new LoginPage();
@@ -96,5 +60,47 @@ class SplashPage extends StatelessWidget {
 
   void checkPermissions(BuildContext context) {
     checkProfile(context);
+  }
+}
+
+class SplashPageState extends State<SplashPage> with TickerProviderStateMixin<SplashPage>{
+  Widget build(BuildContext context) {
+    widget.checkPermissions(context);
+    AnimationController controller = new AnimationController(vsync: this,duration: new Duration(seconds: 1));
+    controller.forward();
+    return new Scaffold(
+        body: new Center(
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          new Hero(
+            tag: "hero-tag-ic-launcher",
+            child: Positioned(
+              top: controller.value*300,
+              child: new Image.asset(
+                launcher,
+                height: 72.0,
+                width: 72.0,
+              ),
+            ),
+          ),
+          new Container(
+            height: 32.0,
+          ),
+          new Text(
+            "君磊助手",
+            style: headerTitleStyle.copyWith(color: gold),
+          ),
+          new Container(
+            height: 48.0,
+          ),
+          new Text(
+            "『进件速度快,结果快速反馈』",
+            style: headerTitleStyle.copyWith(color: gold),
+          ),
+        ],
+      ),
+    ));
   }
 }
