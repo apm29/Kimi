@@ -66,6 +66,7 @@ Future<String> initDio() async {
   dio.interceptor.response.onSuccess = (Response response) {
     // 在返回响应数据之前做一些预处理
     print("on REPONSE[data]: ${response.data}");
+    response.data = response.data.trim();
 //    if(response.data!=null){
 //      Map<String,dynamic> decodeMap = json.decode(response.data);
 //      if(decodeMap.containsKey("code")&&decodeMap["code"]==401){
@@ -145,6 +146,7 @@ void add401Interceptor(BuildContext context) {
   dio.interceptor.response.onSuccess = (Response response) {
     // 在返回响应数据之前做一些预处理
     print("on REPONSE[data]: ${response.data}");
+    response.data = response.data.trim();
     if (response.data != null) {
       Map<String, dynamic> decodeMap = json.decode(response.data);
       if (decodeMap.containsKey("code") && decodeMap["code"] == 401) {

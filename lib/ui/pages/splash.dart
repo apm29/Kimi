@@ -76,13 +76,10 @@ class SplashPageState extends State<SplashPage> with TickerProviderStateMixin<Sp
         children: <Widget>[
           new Hero(
             tag: "hero-tag-ic-launcher",
-            child: Positioned(
-              top: controller.value*300,
-              child: new Image.asset(
-                launcher,
-                height: 72.0,
-                width: 72.0,
-              ),
+            child: new Image.asset(
+              launcher,
+              height: 72.0,
+              width: 72.0,
             ),
           ),
           new Container(

@@ -96,7 +96,7 @@ class JunButton extends StatelessWidget {
   // ignore: conflicting_dart_import
   final TextStyle textStyle;
 
-  JunButton(this.callback, this.text, {this.textStyle = baseTextStyle});
+  JunButton(this.callback, this.text, { Key key,this.textStyle = baseTextStyle}):super(key:key);
 
   @override
   Widget build(BuildContext context) {
