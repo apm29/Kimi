@@ -36,10 +36,11 @@ class SliverUiRule {
   TextStyle style;
   String field;
   bool visible;
+  bool isEditable = true;
 
   SliverUiRule(this.field, this.title, this.hint, this.type, this.imperative,
       this.controller, this.suffix, this.rule,
-      {this.style, this.visible = true});
+      {this.style, this.visible = true, this.isEditable});
 }
 
 abstract class TransformRule<T> {
@@ -68,7 +69,6 @@ class GenderRule extends TransformRule<int> {
   Map<String, int> map = {
     "男": 1,
     "女": 2,
-    "未知": 0,
   };
 
   @override
@@ -344,9 +344,10 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
     _initTextController(applicantString);
   }
 
+  Map<String, dynamic> applicant;
+
   void _initTextController(dynamic applicantString) {
     setState(() {
-      Map<String, dynamic> applicant;
       if (applicantString is String)
         applicant = json.decode(applicantString);
       else
@@ -355,46 +356,50 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
       for (String key in applicant["profile"].keys) {
         if (ruleUi.containsKey(key)) {
           TransformRule transRule = ruleUi[key].rule;
-          ruleUi[key].controller.text =
-              transRule.getString(applicant["profile"][key]).toString();
+          var string = transRule.getString(applicant["profile"][key]);
+          ruleUi[key].controller.text = string == "null" ? "" : string;
         }
       }
       for (String key in applicant["job"].keys) {
         if (ruleUi.containsKey(key)) {
           TransformRule transRule = ruleUi[key].rule;
-          ruleUi[key].controller.text =
-              transRule.getString(applicant["job"][key]).toString();
+          var string = transRule.getString(applicant["job"][key]);
+          ruleUi[key].controller.text = string == "null" ? "" : string;
         }
       }
       //是否已婚
       ruleUi["couple_real_name"].visible = applicant["marital_status"] == 1;
       ruleUi["couple_id_card_no"].visible = applicant["marital_status"] == 1;
+
+      //是否可编辑
+      if (applicant['is_editable'] == false) {
+        for (String key in applicant['job'].keys) {
+          if (ruleUi.containsKey(key)) ruleUi[key].isEditable = false;
+        }
+        for (String key in applicant['profile'].keys) {
+          if (ruleUi.containsKey(key)) ruleUi[key].isEditable = false;
+        }
+      } else if (applicant['is_editable'] == true && applicationId != 0) {
+        for (String key in applicant['job'].keys) {
+          if (ruleUi.containsKey(key))
+            ruleUi[key].isEditable =
+                applicant['job']['allow_field'].toString().contains(key);
+        }
+        for (String key in applicant['profile'].keys) {
+          if (ruleUi.containsKey(key))
+            ruleUi[key].isEditable =
+                applicant['profile']['allow_field'].toString().contains(key);
+        }
+      } else if (applicant['is_editable'] == true && applicationId == 0) {
+        for (String key in applicant['job'].keys) {
+          if (ruleUi.containsKey(key)) ruleUi[key].isEditable = true;
+        }
+        for (String key in applicant['profile'].keys) {
+          if (ruleUi.containsKey(key)) ruleUi[key].isEditable = true;
+        }
+      }
     });
   }
-
-  final List<String> keys = [
-    "real_name", //"姓名",
-    "id_card_no", //"身份证",
-    "gender", //"性别",
-    "marital_status", //"婚姻状况",
-    "couple_real_name", //"配偶姓名",
-    "couple_id_card_no", //"配偶身份证",
-    "company_name", //"工作单位(全称)"
-    "department", //"所在部门",
-    "position_level", //"职务",
-    "staffing", //"编制",
-    "year_income", //"年收入",
-    "foundation_month_amount", //"公积金月缴额",
-    "repayment_type", //"还款方式",
-    "term", //"期限",
-    "credit_account", //"征信账号",
-    "credit_account_password", //"征信密码",
-    "credit_account_code", //"征信验证码",
-    "foundation_account", //"公积金账号",
-    "foundation_account_password", //"公积金密码",
-    "gov_affairs_account", //"政务网账号",
-    "gov_affairs_account_password", //"政务网密码",
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -406,23 +411,25 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
             child: new ListView.builder(
               padding: new EdgeInsets.all(0.0),
               itemBuilder: (_, index) {
-                if (index == ruleUi.length) return new JunButton(() {}, "保存");
+                if (index == ruleUi.length) return buildSubmitButton();
+                var key = ruleUi.keys.toList()[index];
                 return _buildRowSliver(
-                    ruleUi[keys[index]].title,
-                    ruleUi[keys[index]].hint,
-                    ruleUi[keys[index]].type,
-                    ruleUi[keys[index]].imperative,
-                    ruleUi[keys[index]].controller, () {
+                    ruleUi[key].title,
+                    ruleUi[key].hint,
+                    ruleUi[key].type,
+                    ruleUi[key]?.imperative ?? true,
+                    ruleUi[key].controller,
+                    ruleUi[key].isEditable ?? true, () {
                   showDialog(
                       context: context,
                       builder: (context) {
-                        return new PickerWidget(ruleUi[keys[index]].title,
-                            ruleUi[keys[index]].rule.map);
+                        return new PickerWidget(
+                            ruleUi[key].title, ruleUi[key].rule.map);
                       }).then((res) {
                     if (res != null) {
                       Fluttertoast.showToast(msg: res.toString());
                       setState(() {
-                        var uiRule = ruleUi[ruleUi.keys.toList()[index]];
+                        var uiRule = ruleUi[key];
                         uiRule.controller.text = res;
 
                         ///其他特异规则
@@ -437,7 +444,7 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
                       });
                     }
                   });
-                }, ruleUi[keys[index]].suffix, ruleUi[keys[index]].visible);
+                }, ruleUi[key].suffix, ruleUi[key].visible??true);
               },
               itemCount: ruleUi.length + 1,
             ),
@@ -447,8 +454,16 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
     );
   }
 
+  Widget buildSubmitButton() => new JunButton(
+      applicant != null && applicant['is_editable'] == true ? doSubmit : null,
+      "保存");
+
+  void doSubmit() {
+
+  }
+
   Widget _buildRowSliver(String title, String hint, InputType type,
-      bool imperative, TextEditingController controller,
+      bool imperative, TextEditingController controller, bool isEditable,
       [VoidCallback onPress, String suffix, bool visible = true]) {
     if (!visible) {
       return new Container(
@@ -478,10 +493,13 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
             ),
             Expanded(
                 child: GestureDetector(
-              onTap: type == InputType.SELECT ? onPress : null,
+              onTap: type == InputType.SELECT && isEditable ? onPress : null,
               child: type == InputType.TEXT
                   ? TextField(
                       controller: controller,
+                      enabled: isEditable,
+                      style: baseTextStyle.copyWith(
+                          color: isEditable ? Colors.black : Colors.black38),
                       decoration: new InputDecoration(
                           border: InputBorder.none,
                           suffixIcon: type == InputType.SELECT
@@ -497,7 +515,11 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
                       children: <Widget>[
                         new Expanded(
                           child: new Text(
-                              controller.text.isEmpty ? hint : controller.text),
+                            controller.text.isEmpty ? hint : controller.text,
+                            style: baseTextStyle.copyWith(
+                                color:
+                                    isEditable ? Colors.black : Colors.black38),
+                          ),
                         ),
                         new Padding(
                           padding: EdgeInsets.all(8.0),

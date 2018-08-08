@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_office/images.dart';
+import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/ui/pages/main/home.dart';
 import 'package:flutter_office/ui/pages/main/mine.dart';
 
@@ -15,6 +16,7 @@ class MainState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    add401Interceptor(context);
     return new Container(
       padding: new EdgeInsets.all(0.0),
       color: Colors.white,

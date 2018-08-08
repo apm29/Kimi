@@ -2,12 +2,14 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_office/const.dart';
 import 'package:flutter_office/main.dart';
 import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/text_style.dart';
 import 'package:flutter_office/ui/pages/application/personal_info.dart';
 import 'package:flutter_office/ui/widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 typedef void PressSliver(BuildContext context);
 
@@ -35,28 +37,24 @@ class ApplicantState extends State<ApplicantPage> {
   void initState() {
     super.initState();
     if (applicationId == 0) {
+
       //本地新进件
-      Applicant applicant = new Applicant({
+      applicant = new Applicant({
         "is_editable": true,
         "vehicle": <Vehicle>[],
         "house": <House>[],
-        "id": null,
+        "id": 0,
         "job": {},
         "profile": {}
       });
+      save2Sp(applicant);
       calculateProgress();
-      setState(() {
-        this.applicant = applicant;
-      });
     } else {
       //已有进件
       info(context, cancelToken, applicationId).then((resp) {
         BaseResp<Applicant> baseResp = new BaseResp(resp.data);
-        print(baseResp);
+        applicant = Applicant.fromJson(resp.data);
         calculateProgress();
-        setState(() {
-          applicant = baseResp.data;
-        });
       });
     }
   }
@@ -163,8 +161,6 @@ class ApplicantState extends State<ApplicantPage> {
       }
       count++;
     }
-    print(completed);
-    print(count);
     setState(() {
       applicantPersonalInfoProgress = completed / count;
     });
@@ -201,8 +197,6 @@ class ApplicantState extends State<ApplicantPage> {
     if (applicant.house == null || applicant.house.length == 0) {
       count++;
     }
-    print(completed);
-    print(count);
 
     setState(() {
       applicantAssetsInfoProgress = completed / count;
@@ -215,5 +209,18 @@ class ApplicantState extends State<ApplicantPage> {
     Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a, b, c) {
       return new ApplicantPersonalInfoPage(applicationId);
     }));
+  }
+
+  void save2Sp(Applicant applicant) async{
+    var instance =await SharedPreferences.getInstance();
+    var userName = instance.getString(applicant_local_user_name);
+    var userIdCard = instance.getString(applicant_local_user_idNo);
+
+    instance.setString(applicant_local, applicant.toString());
+
+    setState(() {
+      applicant.profile.real_name = userName;
+      applicant.profile.id_card_no = userIdCard;
+    });
   }
 }

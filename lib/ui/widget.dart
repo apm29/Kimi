@@ -109,7 +109,7 @@ class JunButton extends StatelessWidget {
           text,
           style: textStyle,
         ),
-        color: gold,
+        color: callback==null?Colors.grey:gold,
       ),
     );
   }

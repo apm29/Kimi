@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_office/const.dart';
 import 'package:flutter_office/images.dart';
 import 'package:flutter_office/main.dart';
 import 'package:flutter_office/model/api.dart';
@@ -8,6 +9,7 @@ import 'package:flutter_office/text_style.dart';
 import 'package:flutter_office/ui/pages/application/applicant.dart';
 import 'package:flutter_office/ui/widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeFragment extends StatefulWidget {
   @override
@@ -89,11 +91,14 @@ class NewApplicantState extends State<NewApplicantDialog> {
     return new AlertDialog(
       title: new Center(
           child: new Text(
-        "进件客户验证",
-        style: hintTextStyle.copyWith(fontSize: 16.0),
-      )),
+            "进件客户验证",
+            style: hintTextStyle.copyWith(fontSize: 16.0),
+          )),
       content: new Container(
-        width: MediaQuery.of(context).size.width,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width,
         margin: new EdgeInsets.symmetric(horizontal: 16.0),
         child: new ListView(
           shrinkWrap: true,
@@ -158,8 +163,12 @@ class NewApplicantState extends State<NewApplicantDialog> {
       return;
     }
     var response = await can(context, cancelToken, name, idCard);
-    print(response.data);
     var baseResp = new BaseResp(response.data);
-    if (baseResp.isSuccess()) Navigator.of(context).pop<BaseResp>(baseResp);
+    if (baseResp.isSuccess()) {
+      var instance =await SharedPreferences.getInstance();
+      instance.setString(applicant_local_user_name, _nameController.text);
+      instance.setString(applicant_local_user_idNo, _idController.text);
+      Navigator.of(context).pop<BaseResp>(baseResp);
+    }
   }
 }

@@ -148,7 +148,6 @@ class BlankPageState extends State<BlankPage>
       upperBound: scaleHeight,
       lowerBound: 1.0,
     );
-    print(rect.left);
     OverlayEntry entry = new OverlayEntry(builder: (context) {
       return new Positioned.fromRect(
           rect: rect,
