@@ -1,14 +1,14 @@
-import 'package:dio/src/CancelToken.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_office/images.dart';
 import 'package:flutter_office/main.dart';
 import 'package:flutter_office/model/api.dart';
 import 'package:flutter_office/model/model.dart';
 import 'package:flutter_office/text_style.dart';
-import 'package:flutter_office/ui/pages/home.dart';
+import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -29,97 +29,94 @@ class LoginState extends State<LoginPage> {
     var queryData = MediaQuery.of(context);
     var statusBarHeight = queryData.padding.top;
     return new Scaffold(
-      body: new Container(
-        constraints: new BoxConstraints.expand(),
-        padding: new EdgeInsets.only(top: statusBarHeight),
-        child: new ListView(
-          children: <Widget>[
-            new Container(
-              height: 32.0,
-            ),
-            new Image.asset(
-              launcher,
-              width: 72.0,
-              height: 72.0,
-            ),
-            new Container(
-              height: 16.0,
-            ),
-            new Text(
-              "君磊助手工作端",
-              style: headerTitleStyle,
-              textAlign: TextAlign.center,
-            ),
-            new Container(
-              height: 32.0,
-            ),
-            new Container(
-              alignment: Alignment.center,
-              child: new TextInput(
-                hint: "请输入用户名",
-                controller: _nameController,
+      body: new Builder(builder: (BuildContext context) {
+        return new Container(
+          constraints: new BoxConstraints.expand(),
+          padding: new EdgeInsets.only(top: statusBarHeight),
+          child: new ListView(
+            children: <Widget>[
+              new Container(
+                height: 32.0,
               ),
-            ),
-            new Container(
-              height: 8.0,
-            ),
-            new Container(
-              alignment: Alignment.center,
-              child: new TextInput(
-                controller: _passController,
-                hint: "请输入密码",
-                obscure: true,
+              new Hero(
+                  tag: "hero-tag-ic-launcher",
+                  child: new Image.asset(
+                    launcher,
+                    width: 72.0,
+                    height: 72.0,
+                  )),
+              new Container(
+                height: 16.0,
               ),
-            ),
-            new Container(
-              height: 24.0,
-            ),
-            new Container(
-              margin: new EdgeInsets.fromLTRB(64.0, 8.0, 64.0, 8.0),
-              child: new MaterialButton(
-                splashColor: Colors.amberAccent,
-                onPressed: _login,
-                child: new Text(
-                  "登录",
-                  style: headerTextStyle,
+              new Text(
+                "君磊助手工作端",
+                style: headerTitleStyle,
+                textAlign: TextAlign.center,
+              ),
+              new Container(
+                height: 32.0,
+              ),
+              new Container(
+                alignment: Alignment.center,
+                child: new TextInput(
+                  hint: "请输入用户名",
+                  controller: _nameController,
                 ),
-                color: gold,
               ),
-            ),
-            new Container(
-              height: 32.0,
-            ),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                new Checkbox(
-                    value: _checked,
-                    onChanged: (bool) {
-                      setState(() {
-                        _checked = bool;
-                      });
-                    }),
-                new Text(
-                  "登录即视为同意",
-                  style: baseTextStyle.copyWith(color: Colors.black54),
+              new Container(
+                height: 8.0,
+              ),
+              new Container(
+                alignment: Alignment.center,
+                child: new TextInput(
+                  controller: _passController,
+                  hint: "请输入密码",
+                  obscure: true,
                 ),
-                new GestureDetector(
-                  child: new Text(
-                    "<<君磊助手服务协议>>",
-                    style: baseTextStyle,
+              ),
+              new Container(
+                height: 24.0,
+              ),
+              new JunButton(_login, "登录"),
+              new Container(
+                height: 32.0,
+              ),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  new Checkbox(
+                      value: _checked,
+                      onChanged: (bool) {
+                        setState(() {
+                          _checked = bool;
+                        });
+                      }),
+                  new Text.rich(
+                    new TextSpan(children: <TextSpan>[
+                      new TextSpan(text: "登录即视为同意"),
+                      new TextSpan(
+                          text: "<<君磊助手服务协议>>",
+                          recognizer: new TapGestureRecognizer()
+                            ..onTap = () =>
+                                Scaffold.of(context).showSnackBar(new SnackBar(
+                                      content: new Text("还没有"),
+                                    )),
+                          style: baseTextStyle.copyWith(color: Colors.black)),
+                    ]),
+                    style: baseTextStyle.copyWith(color: Colors.black54),
                   ),
-                  onTap: _toService,
-                )
-              ],
-            )
-          ],
-        ),
-      ),
+                ],
+              )
+            ],
+          ),
+        );
+      }),
     );
   }
 
-  _toService() {
+  _toService(BuildContext context) {
     //todo
+    //Scaffold.of(context).showSnackBar(new SnackBar(content: new Text("还没呢")));
   }
 
   _login() {
@@ -149,10 +146,11 @@ class LoginState extends State<LoginPage> {
   }
 
   void performLogin() {
-    login(cancelToken, _nameController.text.trim(), _passController.text.trim())
-        .then((resp) async {
+    login(context, cancelToken, _nameController.text.trim(),
+        _passController.text.trim()).then((resp) async {
       var baseResp = BaseResp<Login>(resp.data);
       if (baseResp.isSuccess()) {
+        data["access_token"] = baseResp.data.access_token;
         prefs
             .setString('access_token', baseResp.data.access_token)
             .then((success) {
@@ -172,7 +170,7 @@ class LoginState extends State<LoginPage> {
   void toMain() {
     Navigator.pushReplacement(context,
         new MaterialPageRoute(builder: (context) {
-      return new HomePage();
+      return new MainPage();
     }));
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-final baseTextStyle = const TextStyle(fontFamily: 'Poppins');
+const baseTextStyle = const TextStyle(fontFamily: 'Poppins');
 final headerTextStyle = baseTextStyle.copyWith(
     color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w600);
 final regularTextStyle = baseTextStyle.copyWith(
@@ -14,4 +14,5 @@ final commonTextStyle = baseTextStyle.copyWith(
 final headerTitleStyle = baseTextStyle.copyWith(
     color: Colors.black54, fontSize: 20.0, fontWeight: FontWeight.w400);
 final hintTextStyle =
-    baseTextStyle.copyWith(color: Colors.black54, fontSize: 22.0);
+    baseTextStyle.copyWith(color: Colors.black54, fontSize: 16.0);
+final buttonTextStyle = baseTextStyle.copyWith(color: Colors.black);
