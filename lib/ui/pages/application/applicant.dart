@@ -39,21 +39,29 @@ class ApplicantState extends State<ApplicantPage> {
     if (applicationId == 0) {
 
       //本地新进件
-      applicant = new Applicant({
-        "is_editable": true,
-        "vehicle": <Vehicle>[],
-        "house": <House>[],
-        "id": 0,
-        "job": {},
-        "profile": {}
-      });
+      applicant = new Applicant.empty();
+      /**
+       * "is_editable": true,
+          "vehicle": <Vehicle>[],
+          "house": <House>[],
+          "id": 0,
+          "job": {},
+          "profile": {}
+       */
+      applicant.is_editable = true;
+      applicant.vehicle = [];
+      applicant.house = [];
+      applicant.application_id = 0;
+      applicant.job = new Job.empty();
+      applicant.profile = new Profile.empty();
+
       save2Sp(applicant);
       calculateProgress();
     } else {
       //已有进件
       info(context, cancelToken, applicationId).then((resp) {
         BaseResp<Applicant> baseResp = new BaseResp(resp.data);
-        applicant = Applicant.fromJson(resp.data);
+        applicant = baseResp.data;
         calculateProgress();
       });
     }
@@ -216,7 +224,7 @@ class ApplicantState extends State<ApplicantPage> {
     var userName = instance.getString(applicant_local_user_name);
     var userIdCard = instance.getString(applicant_local_user_idNo);
 
-    instance.setString(applicant_local, applicant.toString());
+    instance.setString('$applicant_local$applicationId', applicant.toString());
 
     setState(() {
       applicant.profile.real_name = userName;

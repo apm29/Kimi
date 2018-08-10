@@ -68,7 +68,7 @@ class HomeState extends State<HomeFragment> {
 
   void _doEditApplicant() {
     Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a, b, c) {
-      return new ApplicantPage(293);
+      return new ApplicantPage(0);
     }));
   }
 }
