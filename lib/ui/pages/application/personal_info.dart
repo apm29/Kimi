@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_office/const.dart';
 import 'package:flutter_office/main.dart';
 import 'package:flutter_office/model/api.dart';
@@ -33,14 +34,32 @@ class SliverUiRule {
   TextEditingController controller;
   String suffix;
   TransformRule rule;
+
   TextStyle style;
   String field;
   bool visible;
-  bool isEditable = true;
+  bool isEditable;
 
-  SliverUiRule(this.field, this.title, this.hint, this.type, this.imperative,
-      this.controller, this.suffix, this.rule,
-      {this.style, this.visible = true, this.isEditable});
+  int maxLength;
+  TextInputType keyboardType;
+  RegExp regExp;
+
+  SliverUiRule(this.field, this.title, this.hint,
+      {this.type = InputType.TEXT,
+      this.rule,
+      this.suffix,
+      this.controller,
+      this.style,
+      this.imperative = true,
+      this.visible = true,
+      this.isEditable = true,
+      this.maxLength = 200,
+      this.regExp,
+      this.keyboardType = TextInputType.text}) {
+    if (controller == null) controller = new TextEditingController();
+    if (rule == null) rule = new S2STransformRule();
+    if (regExp == null) regExp = new RegExp(r"[\s\S]*");
+  }
 }
 
 abstract class TransformRule<T> {
@@ -158,168 +177,68 @@ class RepaymentTypeRule extends TransformRule<int> {
 
 class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
   final int applicationId;
-  Map<String, SliverUiRule> ruleUi = <String, SliverUiRule>{
-    "real_name": new SliverUiRule("real_name", "姓名", "请输入姓名", InputType.TEXT,
-        true, new TextEditingController(), null, new S2STransformRule()),
-    "id_card_no": new SliverUiRule(
-        "id_card_no",
-        "身份证",
-        "请输入身份证",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
-    "gender": new SliverUiRule("gender", "性别", "请选择性别", InputType.SELECT, true,
-        new TextEditingController(), null, new GenderRule()),
+  Map<String, SliverUiRule> uiRules = <String, SliverUiRule>{
+    "real_name": new SliverUiRule("real_name", "姓名", "请输入姓名", maxLength: 4),
+    "id_card_no": new SliverUiRule("id_card_no", "身份证", "请输入身份证",
+        maxLength: 18, regExp: new RegExp("[0-9xX]")),
+    "gender": new SliverUiRule(
+      "gender",
+      "性别",
+      "请选择性别",
+      rule: new GenderRule(),
+      type: InputType.SELECT,
+    ),
     "marital_status": new SliverUiRule(
-        "marital_status",
-        "婚姻状况",
-        "请选择婚姻状况",
-        InputType.SELECT,
-        true,
-        new TextEditingController(),
-        null,
-        new MarriageRule()),
-    "couple_real_name": new SliverUiRule(
-        "couple_real_name",
-        "配偶姓名",
-        "请输入配偶姓名",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
+      "marital_status",
+      "婚姻状况",
+      "请选择婚姻状况",
+      rule: new MarriageRule(),
+      type: InputType.SELECT,
+    ),
+    "couple_real_name":
+        new SliverUiRule("couple_real_name", "配偶姓名", "请输入配偶姓名", maxLength: 4),
     "couple_id_card_no": new SliverUiRule(
-        "couple_id_card_no",
-        "配偶身份证",
-        "请输入配偶身份证",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
-    "company_name": new SliverUiRule(
-        "company_name",
-        "工作单位(全称)",
-        "请输入工作单位(全称)",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
-    "department": new SliverUiRule(
-        "department",
-        "所在部门",
-        "请输入所在部门",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
-    "position_level": new SliverUiRule(
-        "position_level",
-        "职务",
-        "请输入职务",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
-    "staffing": new SliverUiRule("staffing", "编制", "请选择编制", InputType.SELECT,
-        true, new TextEditingController(), null, new StaffingRule()),
-    "year_income": new SliverUiRule(
-        "year_income",
-        "年收入",
-        "请输入年收入",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        "万元",
-        new S2STransformRule()),
+        "couple_id_card_no", "配偶身份证", "请输入配偶身份证",
+        maxLength: 18),
+    "company_name": new SliverUiRule("company_name", "工作单位(全称)", "请输入工作单位(全称)"),
+    "department": new SliverUiRule("department", "所在部门", "请输入所在部门"),
+    "position_level": new SliverUiRule("position_level", "职务", "请输入职务"),
+    "staffing": new SliverUiRule("staffing", "编制", "请选择编制",
+        rule: new StaffingRule(), type: InputType.SELECT),
+    "year_income": new SliverUiRule("year_income", "年收入", "请输入年收入",
+        regExp: new RegExp(r"[0-9.]"),
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        suffix: "万元"),
     "foundation_month_amount": new SliverUiRule(
-        "foundation_month_amount",
-        "公积金月缴额",
-        "请输入公积金月缴额",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        "元",
-        new S2STransformRule()),
+        "foundation_month_amount", "公积金月缴额", "请输入公积金月缴额",
+        suffix: "元",
+        keyboardType: TextInputType.numberWithOptions(decimal: true),
+        regExp: new RegExp(r"[0-9.]")),
     "repayment_type": new SliverUiRule(
-        "repayment_type",
-        "还款方式",
-        "请选择还款方式",
-        InputType.SELECT,
-        true,
-        new TextEditingController(),
-        null,
-        new RepaymentTypeRule()),
-    "term": new SliverUiRule("term", "期限", "请输入期限", InputType.TEXT, true,
-        new TextEditingController(), "月", new S2STransformRule()),
-    "credit_account": new SliverUiRule(
-        "credit_account",
-        "征信账号",
-        "请输入征信账号",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
-    "credit_account_password": new SliverUiRule(
-        "credit_account_password",
-        "征信密码",
-        "请输入征信密码",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
+      "repayment_type",
+      "还款方式",
+      "请选择还款方式",
+      rule: new RepaymentTypeRule(),
+      type: InputType.SELECT,
+    ),
+    "term": new SliverUiRule("term", "期限", "请输入期限",
+        suffix: "月", regExp: new RegExp(r"[0-9]")),
+    "credit_account": new SliverUiRule("credit_account", "征信账号", "请输入征信账号"),
+    "credit_account_password":
+        new SliverUiRule("credit_account_password", "征信密码", "请输入征信密码"),
     "credit_account_code": new SliverUiRule(
-        "credit_account_code",
-        "征信验证码",
-        "请输入征信验证码",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
-    "foundation_account": new SliverUiRule(
-        "foundation_account",
-        "公积金账号",
-        "请输入公积金账号",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
-    "foundation_account_password": new SliverUiRule(
-        "foundation_account_password",
-        "公积金密码",
-        "请输入公积金密码",
-        InputType.TEXT,
-        true,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
+        "credit_account_code", "征信验证码", "请输入征信验证码",
+        maxLength: 6),
+    "foundation_account":
+        new SliverUiRule("foundation_account", "公积金账号", "请输入公积金账号"),
+    "foundation_account_password":
+        new SliverUiRule("foundation_account_password", "公积金密码", "请输入公积金密码"),
     "gov_affairs_account": new SliverUiRule(
-        "gov_affairs_account",
-        "政务网账号",
-        "请输入政务网账号",
-        InputType.TEXT,
-        false,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
+        "gov_affairs_account", "政务网账号", "请输入政务网账号",
+        imperative: false),
     "gov_affairs_account_password": new SliverUiRule(
-        "gov_affairs_account_password",
-        "政务网密码",
-        "请输入政务网密码",
-        InputType.TEXT,
-        false,
-        new TextEditingController(),
-        null,
-        new S2STransformRule()),
+        "gov_affairs_account_password", "政务网密码", "请输入政务网密码",
+        imperative: false),
   };
 
   PersonalInfoState(this.applicationId) {
@@ -331,7 +250,7 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
     var instance = await SharedPreferences.getInstance();
     if (applicationId == 0) {
       //新进件
-      applicantString = instance.getString(applicant_local);
+      applicantString = instance.getString("$applicant_local$applicationId");
     } else {
       //旧进件
       applicantString = instance.getString("$applicant_local$applicationId");
@@ -342,6 +261,7 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
     }
 
     _initTextController(applicantString);
+    print(applicantString);
   }
 
   Map<String, dynamic> applicant;
@@ -354,48 +274,48 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
         applicant = applicantString;
 
       for (String key in applicant["profile"].keys) {
-        if (ruleUi.containsKey(key)) {
-          TransformRule transRule = ruleUi[key].rule;
+        if (uiRules.containsKey(key)) {
+          TransformRule transRule = uiRules[key].rule;
           var string = transRule.getString(applicant["profile"][key]);
-          ruleUi[key].controller.text = string == "null" ? "" : string;
+          uiRules[key].controller.text = string == "null" ? "" : string;
         }
       }
       for (String key in applicant["job"].keys) {
-        if (ruleUi.containsKey(key)) {
-          TransformRule transRule = ruleUi[key].rule;
+        if (uiRules.containsKey(key)) {
+          TransformRule transRule = uiRules[key].rule;
           var string = transRule.getString(applicant["job"][key]);
-          ruleUi[key].controller.text = string == "null" ? "" : string;
+          uiRules[key].controller.text = string == "null" ? "" : string;
         }
       }
       //是否已婚
-      ruleUi["couple_real_name"].visible = applicant["marital_status"] == 1;
-      ruleUi["couple_id_card_no"].visible = applicant["marital_status"] == 1;
+      uiRules["couple_real_name"].visible = applicant["marital_status"] == 1;
+      uiRules["couple_id_card_no"].visible = applicant["marital_status"] == 1;
 
       //是否可编辑
       if (applicant['is_editable'] == false) {
         for (String key in applicant['job'].keys) {
-          if (ruleUi.containsKey(key)) ruleUi[key].isEditable = false;
+          if (uiRules.containsKey(key)) uiRules[key].isEditable = false;
         }
         for (String key in applicant['profile'].keys) {
-          if (ruleUi.containsKey(key)) ruleUi[key].isEditable = false;
+          if (uiRules.containsKey(key)) uiRules[key].isEditable = false;
         }
       } else if (applicant['is_editable'] == true && applicationId != 0) {
         for (String key in applicant['job'].keys) {
-          if (ruleUi.containsKey(key))
-            ruleUi[key].isEditable =
+          if (uiRules.containsKey(key))
+            uiRules[key].isEditable =
                 applicant['job']['allow_field'].toString().contains(key);
         }
         for (String key in applicant['profile'].keys) {
-          if (ruleUi.containsKey(key))
-            ruleUi[key].isEditable =
+          if (uiRules.containsKey(key))
+            uiRules[key].isEditable =
                 applicant['profile']['allow_field'].toString().contains(key);
         }
       } else if (applicant['is_editable'] == true && applicationId == 0) {
         for (String key in applicant['job'].keys) {
-          if (ruleUi.containsKey(key)) ruleUi[key].isEditable = true;
+          if (uiRules.containsKey(key)) uiRules[key].isEditable = true;
         }
         for (String key in applicant['profile'].keys) {
-          if (ruleUi.containsKey(key)) ruleUi[key].isEditable = true;
+          if (uiRules.containsKey(key)) uiRules[key].isEditable = true;
         }
       }
     });
@@ -411,42 +331,36 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
             child: new ListView.builder(
               padding: new EdgeInsets.all(0.0),
               itemBuilder: (_, index) {
-                if (index == ruleUi.length) return buildSubmitButton();
-                var key = ruleUi.keys.toList()[index];
-                return _buildRowSliver(
-                    ruleUi[key].title,
-                    ruleUi[key].hint,
-                    ruleUi[key].type,
-                    ruleUi[key]?.imperative ?? true,
-                    ruleUi[key].controller,
-                    ruleUi[key].isEditable ?? true, () {
+                if (index == uiRules.length) return buildSubmitButton();
+                var key = uiRules.keys.toList()[index];
+                return _buildRowSliver(uiRules[key], () {
                   showDialog(
                       context: context,
                       builder: (context) {
                         return new PickerWidget(
-                            ruleUi[key].title, ruleUi[key].rule.map);
+                            uiRules[key].title, uiRules[key].rule.map);
                       }).then((res) {
                     if (res != null) {
                       Fluttertoast.showToast(msg: res.toString());
                       setState(() {
-                        var uiRule = ruleUi[key];
+                        var uiRule = uiRules[key];
                         uiRule.controller.text = res;
 
                         ///其他特异规则
                         //是否已婚
-                        var marriageRule = ruleUi["marital_status"].rule;
+                        var marriageRule = uiRules["marital_status"].rule;
                         if (marriageRule.map.containsKey(res)) {
-                          ruleUi["couple_real_name"].visible =
+                          uiRules["couple_real_name"].visible =
                               marriageRule.getValue(res) == 1;
-                          ruleUi["couple_id_card_no"].visible =
+                          uiRules["couple_id_card_no"].visible =
                               marriageRule.getValue(res) == 1;
                         }
                       });
                     }
                   });
-                }, ruleUi[key].suffix, ruleUi[key].visible??true);
+                }, uiRules[key].suffix, uiRules[key].visible ?? true);
               },
-              itemCount: ruleUi.length + 1,
+              itemCount: uiRules.length + 1,
             ),
           ),
         ],
@@ -459,11 +373,22 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
       "保存");
 
   void doSubmit() {
-
+    uiRules.forEach((k,v){
+      if(applicant['profile'].containsKey(k)){
+        applicant['profile'][k] = v.rule.getValue(v.controller.text);
+      }
+      if(applicant['job'].containsKey(k)){
+        applicant['job'][k] = v.rule.getValue(v.controller.text);
+      }
+    });
+    SharedPreferences.getInstance().then((sp){
+      print(applicant);
+      sp.setString('$applicant_local$applicationId', Applicant(applicant).toString());
+      Navigator.pop(context);
+    });
   }
 
-  Widget _buildRowSliver(String title, String hint, InputType type,
-      bool imperative, TextEditingController controller, bool isEditable,
+  Widget _buildRowSliver(SliverUiRule rule,
       [VoidCallback onPress, String suffix, bool visible = true]) {
     if (!visible) {
       return new Container(
@@ -481,11 +406,11 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
                 children: <Widget>[
                   Text.rich(new TextSpan(children: <TextSpan>[
                     new TextSpan(
-                        text: imperative ? "*" : " ",
+                        text: rule.imperative == true ? "*" : " ",
                         style: hintTextStyle.copyWith(
                             color: Colors.red, fontSize: 16.0)),
                     new TextSpan(
-                        text: title,
+                        text: rule.title,
                         style: baseTextStyle.copyWith(fontSize: 18.0)),
                   ])),
                 ],
@@ -493,32 +418,55 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
             ),
             Expanded(
                 child: GestureDetector(
-              onTap: type == InputType.SELECT && isEditable ? onPress : null,
-              child: type == InputType.TEXT
+              onTap: rule.type == InputType.SELECT && rule.isEditable
+                  ? onPress
+                  : null,
+              child: rule.type == InputType.TEXT
                   ? TextField(
-                      controller: controller,
-                      enabled: isEditable,
+                      inputFormatters: <TextInputFormatter>[
+                        new WhitelistingTextInputFormatter(rule.regExp),
+                      ],
+                      onChanged: (v) {
+                        if (v.length > rule.maxLength) {
+                          rule.controller.text = v.substring(0, rule.maxLength);
+                          rule.controller.selection =
+                              new TextSelection.fromPosition(
+                                  new TextPosition(offset: rule.maxLength));
+                        }
+                      },
+                      controller: rule.controller,
+                      enabled: rule.isEditable,
+                      keyboardType: rule.keyboardType,
                       style: baseTextStyle.copyWith(
-                          color: isEditable ? Colors.black : Colors.black38),
+                          color:
+                              rule.isEditable ? Colors.black : Colors.black38),
                       decoration: new InputDecoration(
                           border: InputBorder.none,
-                          suffixIcon: type == InputType.SELECT
+                          suffixIcon: rule.type == InputType.SELECT
                               ? new Padding(
                                   padding: EdgeInsets.all(8.0),
-                                  child: new Icon(Icons.keyboard_arrow_down),
+                                  child: new Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: rule.isEditable
+                                        ? Colors.black
+                                        : Colors.black38,
+                                  ),
                                 )
                               : null,
-                          hintText: hint,
+                          hintText: rule.hint,
                           fillColor: Colors.grey),
                     )
                   : new Row(
                       children: <Widget>[
                         new Expanded(
                           child: new Text(
-                            controller.text.isEmpty ? hint : controller.text,
+                            rule.controller.text.isEmpty
+                                ? rule.hint
+                                : rule.controller.text,
                             style: baseTextStyle.copyWith(
-                                color:
-                                    isEditable ? Colors.black : Colors.black38),
+                                color: rule.isEditable
+                                    ? Colors.black
+                                    : Colors.black38),
                           ),
                         ),
                         new Padding(

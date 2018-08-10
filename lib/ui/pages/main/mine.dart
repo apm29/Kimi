@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_office/model/api.dart';
+import 'package:flutter_office/ui/pages/application/form_page.dart';
 import 'package:flutter_office/ui/pages/login.dart';
 import 'package:flutter_office/ui/widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -50,6 +51,11 @@ class MineState extends State<MineFragment> {
               }));
             }, "new page"),
           ),
+          new JunButton(() {
+            Navigator.push(context, new MaterialPageRoute(builder: (_){
+              return new FormPage();
+            }));
+          }, "NEW API"),
         ],
       )),
     );
@@ -73,9 +79,7 @@ class BlankPageState extends State<BlankPage>
       body: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          new Container(
-            height: 100.0,
-          ),
+          new TextFormField(),
           new JunButton(() {
             SharedPreferences.getInstance().then((instance) {
               instance.clear();
@@ -125,7 +129,7 @@ class BlankPageState extends State<BlankPage>
               child: new Text("vibrate"),
 
             ),
-          )
+          ),
         ],
       ),
     );

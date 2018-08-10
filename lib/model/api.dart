@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_office/ui/pages/login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'generic_api.dart';
 Options options = new Options(
   responseType: ResponseType.PLAIN,
   baseUrl: "http://office-api.junleizg.com.cn",
@@ -52,7 +52,8 @@ Future<String> initDio() async {
     print("on REQUEST[  method  ]: ${options.method}");
     print("on REQUEST[  headers ]: ${options.headers}");
     print("on REQUEST[  url     ]: ${options.baseUrl + options.path}");
-    print("on REQUEST[  body    ]: ${options.data}");
+    print("on REQUEST[  body    ]:");
+    printJsonFormat(options.data.toString());
     // 在请求被发送之前做一些事情
     return options; //continue
     // 如果你想完成请求并返回一些自定义数据，可以返回一个`Response`对象或返回`dio.resolve(data)`。
@@ -63,6 +64,7 @@ Future<String> initDio() async {
   };
   dio.interceptor.response.onSuccess = (Response response) {
     // 在返回响应数据之前做一些预处理
+    response.data = response.data.trim();
     printData(response);
 //    if(response.data!=null){
 //      Map<String,dynamic> decodeMap = json.decode(response.data);
@@ -90,19 +92,21 @@ Future<String> initDio() async {
 
 void printData(Response response) {
   var string = response.data.toString();
-  if (string.length <= 100) {
-    print("on REPONSE[  data    ]: $string");
-  } else {
-    var startIndex = 0;
-    for (var i = 100; i < string.length; i += 100) {
-      if(startIndex==0)print("\n");
-      print("on REPONSE[  data    ]: ${string.substring(startIndex, i)}");
-      startIndex = i;
-    }
-    print("on REPONSE[  data    ]: ${string.substring(
-        startIndex , string.length)}");
-  }
-  response.data = response.data.trim();
+//  if (string.length <= 100) {
+//    print("on REPONSE[  data    ]: $string");
+//  } else {
+//    var startIndex = 0;
+//    for (var i = 100; i < string.length; i += 100) {
+//      if(startIndex==0)print("\n");
+//      print("on REPONSE[  data    ]: ${string.substring(startIndex, i)}");
+//      startIndex = i;
+//    }
+//    print("on REPONSE[  data    ]: ${string.substring(
+//        startIndex , string.length)}");
+//  }
+
+    print("on REPONSE[  data    ]:");
+    printJsonFormat(string);
 }
 
 Future<Response> profile(BuildContext context, CancelToken cancelToken) {
@@ -160,6 +164,7 @@ void add401Interceptor(BuildContext context) {
   dio.interceptor.response.onSuccess = (Response response) {
     // 在返回响应数据之前做一些预处理
     printData(response);
+    response.data = response.data.trim();
     print('context:${context.runtimeType}');
     if (response.data != null) {
       Map<String, dynamic> decodeMap = json.decode(response.data);
