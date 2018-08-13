@@ -16,3 +16,15 @@ final headerTitleStyle = baseTextStyle.copyWith(
 final hintTextStyle =
     baseTextStyle.copyWith(color: Colors.black54, fontSize: 16.0);
 final buttonTextStyle = baseTextStyle.copyWith(color: Colors.black);
+
+final themeStyle1 = baseTextStyle.copyWith(color: Colors.black);
+final themeStyle2 = baseTextStyle.copyWith(color: Colors.black87);
+final themeStyle3 = baseTextStyle.copyWith(color: Colors.black87);
+final themeStyle4 = baseTextStyle.copyWith(color: Colors.green);
+final themeBodyStyle1 = baseTextStyle.copyWith(color: Colors.black);
+final themeBodyStyle2 = baseTextStyle.copyWith(color: Colors.black87);
+final themeTitleStyle1 = baseTextStyle.copyWith(color: Colors.purple);
+final themeHeadlineStyle1 = baseTextStyle.copyWith(color: Colors.blue);
+final themeSubStyle = baseTextStyle.copyWith(color: Colors.black87);
+final themeCaptionStyle = baseTextStyle.copyWith(color: Colors.grey);
+final themeButtonStyle = baseTextStyle.copyWith(color: Colors.blueGrey);

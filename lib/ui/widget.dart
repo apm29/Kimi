@@ -115,7 +115,7 @@ class JunButton extends StatelessWidget {
   }
 }
 
-class GradientAppBar extends StatelessWidget {
+class GradientAppBar extends StatelessWidget implements PreferredSizeWidget{
   final String title;
 
   GradientAppBar(this.title);
@@ -175,6 +175,9 @@ class GradientAppBar extends StatelessWidget {
       ),
     );
   }
+
+  @override
+  Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }
 
 class TransparentAppBar extends StatelessWidget {

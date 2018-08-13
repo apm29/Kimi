@@ -11,7 +11,6 @@ import 'package:flutter_office/text_style.dart';
 import 'package:flutter_office/ui/widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vector_math/vector_math_64.dart' as vector;
 
 enum InputType { TEXT, SELECT, CHECK }
 
