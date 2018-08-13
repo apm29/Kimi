@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_office/model/api.dart';
+import 'package:flutter_office/text_style.dart';
 import 'package:flutter_office/ui/pages/main.dart';
 import 'package:flutter_office/ui/pages/splash.dart';
 import 'package:stack_trace/stack_trace.dart';
@@ -47,6 +48,19 @@ class MyApp extends StatelessWidget {
         // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: gold,
+        textTheme: new TextTheme(
+          display1: themeStyle1,
+          display2: themeStyle2,
+          display3: themeStyle3,
+          display4: themeStyle4,
+          headline: themeHeadlineStyle1,
+          subhead: themeSubStyle,
+          body1: themeBodyStyle1,
+          body2: themeBodyStyle2,
+          caption: themeCaptionStyle,
+          button: themeButtonStyle,
+          title: themeTitleStyle1,
+        )
       ),
       home: new SplashPage(),
       routes: <String, WidgetBuilder>{
