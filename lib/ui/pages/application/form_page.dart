@@ -62,66 +62,9 @@ class ApplicationFormState extends State<ApplicationForm> {
       child: ListView(
 
         children: <Widget>[
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.0,vertical: 8.0),
-            decoration: BoxDecoration(
-              border:BorderDirectional(bottom: new BorderSide(
-                color: Colors.black12
-              )),
-            ),
-            child: Row(
-              children: <Widget>[
-                 Text.rich( TextSpan(children: [
-                   TextSpan(text: "*",style: baseTextStyle.copyWith(color: Colors.pink)),
-                   TextSpan(text: "姓名"),
-                ]),),
-                Container(width: 12.0,),
-                Expanded(
-
-                  child: TextFormField(
-                    controller: controllerName,
-                    decoration: InputDecoration.collapsed(hintText: "请输入姓名"),
-                    // The validator receives the text the user has typed in
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.0,vertical: 8.0),
-            decoration: BoxDecoration(
-              border:BorderDirectional(bottom: new BorderSide(
-                  color: Colors.black12
-              )),
-            ),
-            child: Row(
-              children: <Widget>[
-                Text.rich( TextSpan(children: [
-                  TextSpan(text: "*",style: baseTextStyle.copyWith(color: Colors.pink)),
-                  TextSpan(text: "身份证"),
-                ]),),
-                Container(width: 12.0,),
-                Expanded(
-
-                  child: TextFormField(
-                    controller: controllerId,
-                    decoration: InputDecoration.collapsed(hintText: "请输入身份证"),
-                    // The validator receives the text the user has typed in
-                    validator: (value) {
-                      if (value.isEmpty) {
-                        return 'Please enter some text';
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
+          new FormPart(controllerName: controllerName),
+          new FormPart(controllerName: controllerId),
+          new FormPart(controllerName: controllerGender),
           RaisedButton(
             onPressed: () {
               // Validate will return true if the form is valid, or false if
@@ -132,10 +75,66 @@ class ApplicationFormState extends State<ApplicationForm> {
                     .of(context)
                     .showSnackBar(SnackBar(content: Text('Processing Data')));
                 globalKey.currentState.save();
-                
+
               }
             },
             child: Text('Submit'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+enum InputType{
+  SELECT_OPTION,TEXT_PLAIN
+}
+class FormPart extends StatelessWidget {
+  final String title;
+  final imperative;
+  final String hint;
+  final InputType inputType;
+  final  enable;
+  final FormFieldValidator<String> validator;
+  const FormPart({
+    Key key,
+    @required this.controllerName,
+    this.title,
+    this.hint,
+    this.inputType = InputType.TEXT_PLAIN,
+    this.imperative = true,
+    this.enable = true,
+    this.validator
+  }) : super(key: key);
+
+  final TextEditingController controllerName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.0,vertical: 8.0),
+      decoration: BoxDecoration(
+        border:BorderDirectional(bottom: new BorderSide(
+          color: Colors.black12
+        )),
+      ),
+      child: Row(
+        children: <Widget>[
+           Text.rich( TextSpan(children: [
+             TextSpan(text: "*",style: baseTextStyle.copyWith(color: Colors.pink)),
+             TextSpan(text: "姓名"),
+          ]),),
+          Container(width: 12.0,),
+          Expanded(
+            child: TextFormField(
+              controller: controllerName,
+              decoration: InputDecoration.collapsed(hintText: "请输入姓名"),
+              // The validator receives the text the user has typed in
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Please enter some text';
+                }
+              },
+            ),
           ),
         ],
       ),
