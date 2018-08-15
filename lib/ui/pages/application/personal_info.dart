@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_office/const.dart';
 import 'package:flutter_office/main.dart';
@@ -43,6 +44,8 @@ class SliverUiRule {
   TextInputType keyboardType;
   RegExp regExp;
 
+  FormFieldValidator<String> validator;
+
   SliverUiRule(this.field, this.title, this.hint,
       {this.type = InputType.TEXT,
       this.rule,
@@ -54,10 +57,16 @@ class SliverUiRule {
       this.isEditable = true,
       this.maxLength = 200,
       this.regExp,
-      this.keyboardType = TextInputType.text}) {
+      this.keyboardType = TextInputType.text,
+      this.validator}) {
     if (controller == null) controller = new TextEditingController();
     if (rule == null) rule = new S2STransformRule();
     if (regExp == null) regExp = new RegExp(r"[\s\S]*");
+    if (validator == null) {
+      validator = (str) {
+        if (str.isEmpty) return "请输入$title";
+      };
+    }
   }
 }
 
@@ -240,6 +249,8 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
         imperative: false),
   };
 
+  var globalKey = new GlobalKey<FormState>();
+
   PersonalInfoState(this.applicationId) {
     initData();
   }
@@ -260,7 +271,6 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
     }
 
     _initTextController(applicantString);
-    print(applicantString);
   }
 
   Map<String, dynamic> applicant;
@@ -353,6 +363,17 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
                               marriageRule.getValue(res) == 1;
                           uiRules["couple_id_card_no"].visible =
                               marriageRule.getValue(res) == 1;
+                          uiRules['couple_real_name'].validator = (str) {
+                            if (str.isEmpty) return "请输入配偶姓名";
+                          };
+                          uiRules['couple_id_card_no'].validator = (str) {
+                            if (str.isEmpty) return "请输入配偶身份证";
+                          };
+                        }else{
+                          uiRules['couple_real_name'].validator = (str) {
+                          };
+                          uiRules['couple_id_card_no'].validator = (str) {
+                          };
                         }
                       });
                     }
@@ -372,19 +393,20 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
       "保存");
 
   void doSubmit() {
-    uiRules.forEach((k,v){
-      if(applicant['profile'].containsKey(k)){
+    uiRules.forEach((k, v) {
+      if (applicant['profile'].containsKey(k)) {
         applicant['profile'][k] = v.rule.getValue(v.controller.text);
       }
-      if(applicant['job'].containsKey(k)){
+      if (applicant['job'].containsKey(k)) {
         applicant['job'][k] = v.rule.getValue(v.controller.text);
       }
     });
-    SharedPreferences.getInstance().then((sp){
-      print(applicant);
-      sp.setString('$applicant_local$applicationId', Applicant(applicant).toString());
-      Navigator.pop(context);
-    });
+    if (validate(applicant))
+      SharedPreferences.getInstance().then((sp) {
+        sp.setString(
+            '$applicant_local$applicationId', Applicant(applicant).toString());
+        Navigator.pop(context);
+      });
   }
 
   Widget _buildRowSliver(SliverUiRule rule,
@@ -494,6 +516,21 @@ class PersonalInfoState extends State<ApplicantPersonalInfoPage> {
       height: 0.5,
     );
   }
+
+  bool validate(Map<String, dynamic> applicant) {
+    if (applicant['profile'] != null) {
+      for (SliverUiRule rule in uiRules.values) {
+        var validator = rule.validator(rule.controller.text);
+        if (validator != null && validator.isNotEmpty&&rule.imperative) {
+          //Fluttertoast.showToast(msg: validator);
+          print(validator);
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
 }
 
 class PickerWidget<T> extends StatelessWidget {
@@ -539,12 +576,6 @@ class PickerWidget<T> extends StatelessWidget {
             height: 0.5,
           ),
           new Container(
-            decoration: BoxDecoration(
-                color: Colors.white,
-                gradient: new LinearGradient(
-                    colors: [gold[100], Colors.white70],
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter)),
             constraints: BoxConstraints.loose(new Size.fromHeight(260.0)),
             child: new ListView.builder(
               physics:

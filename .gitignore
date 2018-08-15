@@ -10,14 +10,15 @@ build/
 *.iml
 .gradle
 /local.properties
-/.idea
+/.idea/
 .idea/
 .DS_Store
 /build
 /captures
 .externalNativeBuild
-
-
+/.vscode/
+/.gitee/
+/.idea/workspace.xml
 # Created by https://www.gitignore.io/api/androidstudio
 
 ### AndroidStudio ###

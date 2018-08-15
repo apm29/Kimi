@@ -53,7 +53,9 @@ class ApplicantState extends State<ApplicantPage> {
       applicant.house = [];
       applicant.application_id = 0;
       applicant.job = new Job.empty();
+      print(applicant.profile.allow_field);
       applicant.profile = new Profile.empty();
+      print(applicant.profile.allow_field);
 
       save2Sp(applicant);
       calculateProgress();
@@ -150,25 +152,36 @@ class ApplicantState extends State<ApplicantPage> {
     //个人信息
     int count = 0;
     int completed = 0;
-    Map<String, dynamic> map = json.decode(applicant.profile.toString());
-    for (String key in map.keys) {
+    Map<String, dynamic> mapProfile = json.decode(applicant.profile.toString());
+    print(mapProfile);
+    for (String key in mapProfile.keys) {
       if (key == "id") continue;
       if (key == "allow_field") continue;
-      if (map[key] != null) {
-        completed++;
+      if (mapProfile[key] != null) {
+        if((mapProfile[key] is num && mapProfile[key]!=0 ))
+          completed++;
+        if(!(mapProfile[key] is num)){
+          completed++;
+        }
       }
       count++;
     }
+    print('$completed/$count');
     //工作信息
-    Map<String, dynamic> mapJ = json.decode(applicant.job.toString());
-    for (String key in mapJ.keys) {
+    Map<String, dynamic> mapJob = json.decode(applicant.job.toString());
+    for (String key in mapJob.keys) {
       if (key == "id") continue;
       if (key == "allow_field") continue;
-      if (mapJ[key] != null) {
-        completed++;
+      if (mapJob[key] != null) {
+        if((mapJob[key] is num && mapJob[key]!=0 ))
+          completed++;
+        if(!(mapJob[key] is num)){
+          completed++;
+        }
       }
       count++;
     }
+    print('$completed/$count');
     setState(() {
       applicantPersonalInfoProgress = completed / count;
     });
@@ -178,12 +191,12 @@ class ApplicantState extends State<ApplicantPage> {
     completed = 0;
     if (applicant.vehicle != null)
       for (Vehicle vehicle in applicant.vehicle) {
-        Map<String, dynamic> mapV = json.decode(vehicle.toString());
+        Map<String, dynamic> mapVehicle = json.decode(vehicle.toString());
         bool filled = true;
-        for (String key in mapV.keys) {
+        for (String key in mapVehicle.keys) {
           if (key == "id") continue;
           if (key == "allow_field") continue;
-          if (mapV[key] == null) filled = false;
+          if (mapVehicle[key] == null) filled = false;
         }
         count++;
         if (filled) completed++;
@@ -191,12 +204,12 @@ class ApplicantState extends State<ApplicantPage> {
     //房屋
     if (applicant.house != null) {
       for (House house in applicant.house) {
-        Map<String, dynamic> mapH = json.decode(house.toString());
+        Map<String, dynamic> mapHouse = json.decode(house.toString());
         bool filled = true;
-        for (String key in mapH.keys) {
+        for (String key in mapHouse.keys) {
           if (key == "id") continue;
           if (key == "allow_field") continue;
-          if (mapH[key] == null) filled = false;
+          if (mapHouse[key] == null) filled = false;
         }
         count++;
         if (filled) completed++;
@@ -211,7 +224,9 @@ class ApplicantState extends State<ApplicantPage> {
     });
   }
 
-  void _toAssetsInfo(BuildContext context) {}
+  void _toAssetsInfo(BuildContext context) {
+
+  }
 
   void _toPersonalInfo(BuildContext context) {
     Navigator.of(context).push(new PageRouteBuilder(pageBuilder: (a, b, c) {

@@ -204,7 +204,14 @@ class Profile {
   int repayment_type;
   int status;
   int term;
-  String allow_field;
+  String p_allow_field;
+
+  String get allow_field => p_allow_field;
+
+  set allow_field(String allow_field) {
+    print('set');
+    p_allow_field = allow_field;
+  }
   String couple_id_card_no;
   String couple_real_name;
   String credit_account;
@@ -226,6 +233,7 @@ class Profile {
     marital_status = 0;
     repayment_type = 0;
     status = 0;
+    allow_field = null;
   }
 
   Profile.fromParams(
@@ -236,7 +244,7 @@ class Profile {
       this.repayment_type,
       this.status,
       this.term,
-      this.allow_field,
+      this.p_allow_field,
       this.couple_id_card_no,
       this.couple_real_name,
       this.credit_account,
@@ -258,7 +266,7 @@ class Profile {
     marital_status = jsonRes['marital_status'];
     repayment_type = jsonRes['repayment_type'];
     status = jsonRes['status'];
-    term = jsonRes['term'];
+    term = int.parse(jsonRes['term']);
     allow_field = jsonRes['allow_field'];
     couple_id_card_no = jsonRes['couple_id_card_no'];
     couple_real_name = jsonRes['couple_real_name'];
@@ -280,8 +288,7 @@ class Profile {
     return '{"agent_id": ${agent_id != null ? '${json.encode(
         agent_id
         )}' :
-                           'null'},"gender": $gender,"id": $id,"marital_status": $marital_status,"repayment_type": $repayment_type,"status": $status,"term": $term,"allow_field": ${allow_field !=
-                                                                                                                                                                                    'null'}}';
+                           'null'},"gender": $gender,"id": $id,"marital_status": $marital_status,"repayment_type": $repayment_type,"status": $status,"term": $term,"allow_field": $allow_field}';
   }
 }
 
